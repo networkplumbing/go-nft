@@ -17,28 +17,25 @@
  *
  */
 
-package nft
+package schema
 
-import (
-	"encoding/json"
-
-	"github.com/eddev/go-nft/nft/schema"
-)
-
-type Config struct {
-	schema.Root
+type Root struct {
+	Nftables []Nftable `json:"nftables"`
 }
 
-func NewConfig() *Config {
-	c := &Config{}
-	c.Nftables = []schema.Nftable{}
-	return c
+type Objects struct {
+	Table *Table `json:"table,omitempty"`
 }
 
-func (c *Config) MarshalJSON() ([]byte, error) {
-	return json.Marshal(*c)
+type Nftable struct {
+	Table *Table `json:"table,omitempty"`
+
+	Add    *Objects `json:"add,omitempty"`
+	Delete *Objects `json:"delete,omitempty"`
+	Flush  *Objects `json:"flush,omitempty"`
 }
 
-func HelloWorld() string {
-	return "This is go-nft"
+type Table struct {
+	Family string `json:"family"`
+	Name   string `json:"name"`
 }
