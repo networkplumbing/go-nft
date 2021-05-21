@@ -2,6 +2,7 @@
 
 [![Licensed under Apache License version 2.0](https://img.shields.io/github/license/kubevirt/kubevirt.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Build Workflow](https://github.com/EdDev/go-nft/actions/workflows/main.yml/badge.svg)](https://github.com/EdDev/go-nft/actions/workflows/main.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/EdDev/go-nft)](https://goreportcard.com/report/github.com/EdDev/go-nft)
 
 Go bindings for nft utility.
 
