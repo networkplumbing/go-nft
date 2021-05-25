@@ -22,11 +22,16 @@ package nft_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/eddev/go-nft/nft"
 )
 
-func Test(t *testing.T) {
-	if nft.HelloWorld() != "This is go-nft" {
-		t.Fatalf("Test Skeleton")
-	}
+func TestDefineEmptyConfig(t *testing.T) {
+	config := nft.NewConfig()
+
+	expected := []byte(`{"nftables":[]}`)
+	serializedConfig, err := config.MarshalJSON()
+	assert.NoError(t, err)
+	assert.Equal(t, string(expected), string(serializedConfig))
 }
