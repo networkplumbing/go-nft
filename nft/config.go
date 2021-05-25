@@ -38,7 +38,3 @@ func NewConfig() *Config {
 func (c *Config) MarshalJSON() ([]byte, error) {
 	return json.Marshal(*c)
 }
-
-func HelloWorld() string {
-	return "This is go-nft"
-}
