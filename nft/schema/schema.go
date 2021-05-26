@@ -25,10 +25,12 @@ type Root struct {
 
 type Objects struct {
 	Table *Table `json:"table,omitempty"`
+	Chain *Chain `json:"chain,omitempty"`
 }
 
 type Nftable struct {
 	Table *Table `json:"table,omitempty"`
+	Chain *Chain `json:"chain,omitempty"`
 
 	Add    *Objects `json:"add,omitempty"`
 	Delete *Objects `json:"delete,omitempty"`
@@ -38,4 +40,14 @@ type Nftable struct {
 type Table struct {
 	Family string `json:"family"`
 	Name   string `json:"name"`
+}
+
+type Chain struct {
+	Family string `json:"family"`
+	Table  string `json:"table"`
+	Name   string `json:"name"`
+	Type   string `json:"type,omitempty"`
+	Hook   string `json:"hook,omitempty"`
+	Prio   *int   `json:"prio,omitempty"`
+	Policy string `json:"policy,omitempty"`
 }
