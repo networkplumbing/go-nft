@@ -23,6 +23,12 @@ jobs:
         unformatted=$(gofmt -l ./nft)
         test -z "$unformatted" || (echo "Unformatted: $unformatted" && false)
 
+    - name: Import Format Check
+      run: |
+        go get golang.org/x/tools/cmd/goimports
+        unformatted=$(goimports -l --local "github.com/eddev/go-nft" ./nft)
+        test -z "$unformatted" || (echo "Unformatted imports: $unformatted" && false)
+
     - name: Build
       run: go build -v ./...
 
