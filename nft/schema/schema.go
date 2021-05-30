@@ -101,6 +101,7 @@ type Expression struct {
 	Bool    *bool           `json:"-"`
 	Int     *int            `json:"-"`
 	Payload *Payload        `json:"payload,omitempty"`
+	RowData json.RawMessage `json:"-"`
 }
 
 type Payload struct {
@@ -222,6 +223,8 @@ func (e Expression) MarshalJSON() ([]byte, error) {
 	var dynamicStruct interface{}
 
 	switch {
+	case e.RowData != nil:
+		return e.RowData, nil
 	case e.String != nil:
 		dynamicStruct = *e.String
 	case e.Int != nil:
@@ -263,6 +266,10 @@ func (e *Expression) UnmarshalJSON(data []byte) error {
 		}
 	default:
 		return fmt.Errorf("unsupported field type in expression")
+	}
+
+	if e.String == nil && e.Int == nil && e.Bool == nil && e.Payload == nil {
+		e.RowData = data
 	}
 
 	return nil

@@ -41,6 +41,44 @@ const (
 func TestRule(t *testing.T) {
 	testAddRuleWithMatchAndVerdict(t)
 	testDeleteRule(t)
+
+	testAddRuleWithRowExpression(t)
+}
+
+func testAddRuleWithRowExpression(t *testing.T) {
+	const comment = "mycomment"
+
+	table := nft.NewTable(tableName, nft.FamilyIP)
+	chain := nft.NewRegularChain(table, chainName)
+
+	t.Run("Add rule with a row expression, check serialization", func(t *testing.T) {
+		statements, serializedStatements := matchWithRowExpression()
+		rule := nft.NewRule(table, chain, statements, nil, comment)
+
+		config := nft.NewConfig()
+		config.AddRule(rule)
+
+		serializedConfig, err := config.MarshalJSON()
+		assert.NoError(t, err)
+
+		expectedConfig := buildSerializedConfig(ruleADD, serializedStatements, nil, comment)
+		assert.Equal(t, string(expectedConfig), string(serializedConfig))
+	})
+
+	t.Run("Add rule with a row expression, check deserialization", func(t *testing.T) {
+		statements, serializedStatements := matchWithRowExpression()
+
+		serializedConfig := buildSerializedConfig(ruleADD, serializedStatements, nil, comment)
+
+		var deserializedConfig nft.Config
+		assert.NoError(t, json.Unmarshal(serializedConfig, &deserializedConfig))
+
+		rule := nft.NewRule(table, chain, statements, nil, comment)
+		expectedConfig := nft.NewConfig()
+		expectedConfig.AddRule(rule)
+
+		assert.Equal(t, expectedConfig, &deserializedConfig)
+	})
 }
 
 func testAddRuleWithMatchAndVerdict(t *testing.T) {
@@ -144,6 +182,25 @@ func matchSrcIP4withReturnVerdict() ([]schema.Statement, string) {
 	)
 	expectedVerdict := `"return":null`
 	serializedStatements := fmt.Sprintf(`"expr":[{%s},{%s}]`, expectedMatch, expectedVerdict)
+
+	return statements, serializedStatements
+}
+
+func matchWithRowExpression() ([]schema.Statement, string) {
+	stringExpression := "string-expression"
+	rowExpression := `{"foo":"boo"}`
+	match := schema.Statement{
+		Match: &schema.Match{
+			Op:    schema.OperEQ,
+			Left:  schema.Expression{RowData: json.RawMessage(rowExpression)},
+			Right: schema.Expression{String: &stringExpression},
+		},
+	}
+
+	statements := []schema.Statement{match}
+
+	expectedMatch := fmt.Sprintf(`"match":{"op":"==","left":%s,"right":%q}`, rowExpression, stringExpression)
+	serializedStatements := fmt.Sprintf(`"expr":[{%s}]`, expectedMatch)
 
 	return statements, serializedStatements
 }
