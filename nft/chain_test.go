@@ -83,7 +83,7 @@ func testAddBaseChains(t *testing.T) {
 					config := nft.NewConfig()
 					config.AddChain(chain)
 
-					serializedConfig, err := config.MarshalJSON()
+					serializedConfig, err := config.ToJSON()
 					assert.NoError(t, err)
 
 					chainArgs := fmt.Sprintf(
@@ -118,7 +118,7 @@ func testRegularChainsActions(t *testing.T) {
 			config := nft.NewConfig()
 			actionFunc(config, chain)
 
-			serializedConfig, err := config.MarshalJSON()
+			serializedConfig, err := config.ToJSON()
 			assert.NoError(t, err)
 
 			chainArgs := fmt.Sprintf(`"family":%q,"table":%q,"name":%q`, table.Family, table.Name, chainName)

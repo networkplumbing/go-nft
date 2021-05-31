@@ -34,7 +34,7 @@ func TestDefineEmptyConfig(t *testing.T) {
 	config := nft.NewConfig()
 
 	expected := []byte(`{"nftables":[]}`)
-	serializedConfig, err := config.MarshalJSON()
+	serializedConfig, err := config.ToJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, string(expected), string(serializedConfig))
 }
