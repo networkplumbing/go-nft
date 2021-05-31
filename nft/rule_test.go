@@ -58,7 +58,7 @@ func testAddRuleWithRowExpression(t *testing.T) {
 		config := nft.NewConfig()
 		config.AddRule(rule)
 
-		serializedConfig, err := config.MarshalJSON()
+		serializedConfig, err := config.ToJSON()
 		assert.NoError(t, err)
 
 		expectedConfig := buildSerializedConfig(ruleADD, serializedStatements, nil, comment)
@@ -94,7 +94,7 @@ func testAddRuleWithMatchAndVerdict(t *testing.T) {
 		config := nft.NewConfig()
 		config.AddRule(rule)
 
-		serializedConfig, err := config.MarshalJSON()
+		serializedConfig, err := config.ToJSON()
 		assert.NoError(t, err)
 
 		expectedConfig := buildSerializedConfig(ruleADD, serializedStatements, nil, comment)
@@ -128,7 +128,7 @@ func testDeleteRule(t *testing.T) {
 		config := nft.NewConfig()
 		config.DeleteRule(rule)
 
-		serializedConfig, err := config.MarshalJSON()
+		serializedConfig, err := config.ToJSON()
 		assert.NoError(t, err)
 
 		expectedConfig := buildSerializedConfig(ruleDELETE, "", &handleID, "")

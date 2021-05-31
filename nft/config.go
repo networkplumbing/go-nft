@@ -35,7 +35,7 @@ func NewConfig() *Config {
 	return c
 }
 
-func (c *Config) MarshalJSON() ([]byte, error) {
+func (c *Config) ToJSON() ([]byte, error) {
 	return json.Marshal(*c)
 }
 
