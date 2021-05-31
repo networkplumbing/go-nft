@@ -32,5 +32,16 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+    - name: UnitTest
+      run: go test -v ./nft
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Start docker service
+        run: sudo service docker start
+
+      - name: Run integration tests
+        run: ./automation/run-tests.sh
