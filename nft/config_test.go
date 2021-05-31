@@ -20,7 +20,10 @@
 package nft_test
 
 import (
+	"fmt"
 	"testing"
+
+	"github.com/eddev/go-nft/nft/schema"
 
 	"github.com/stretchr/testify/assert"
 
@@ -34,4 +37,26 @@ func TestDefineEmptyConfig(t *testing.T) {
 	serializedConfig, err := config.MarshalJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, string(expected), string(serializedConfig))
+}
+
+func TestReadEmptyConfigWithMetaInfo(t *testing.T) {
+	const version = "0.9.3"
+	const releaseName = "Topsy"
+	const schemaVersion = 1
+	serializedConfig := []byte(fmt.Sprintf(
+		`{"nftables":[{"metainfo":{"version":%q,"release_name":%q,"json_schema_version":%d}}]}`,
+		version, releaseName, schemaVersion,
+	))
+
+	config := nft.NewConfig()
+	assert.NoError(t, config.FromJSON(serializedConfig))
+
+	expectedConfig := nft.NewConfig()
+	expectedConfig.Nftables = append(expectedConfig.Nftables, schema.Nftable{Metainfo: &schema.Metainfo{
+		Version:           version,
+		ReleaseName:       releaseName,
+		JsonSchemaVersion: schemaVersion,
+	}})
+
+	assert.Equal(t, expectedConfig, config)
 }
