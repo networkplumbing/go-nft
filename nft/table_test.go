@@ -65,7 +65,7 @@ func testTableAction(t *testing.T, actionName nft.TableAction, actionFunc tableA
 		config := nft.NewConfig()
 		actionFunc(config, table)
 
-		serializedConfig, err := config.MarshalJSON()
+		serializedConfig, err := config.ToJSON()
 		assert.NoError(t, err)
 
 		var expected []byte
