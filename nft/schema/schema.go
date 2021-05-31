@@ -42,6 +42,14 @@ type Nftable struct {
 	Add    *Objects `json:"add,omitempty"`
 	Delete *Objects `json:"delete,omitempty"`
 	Flush  *Objects `json:"flush,omitempty"`
+
+	Metainfo *Metainfo `json:"metainfo,omitempty"`
+}
+
+type Metainfo struct {
+	Version           string `json:"version"`
+	ReleaseName       string `json:"release_name"`
+	JsonSchemaVersion int    `json:"json_schema_version"`
 }
 
 type Table struct {

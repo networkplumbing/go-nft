@@ -38,3 +38,10 @@ func NewConfig() *Config {
 func (c *Config) MarshalJSON() ([]byte, error) {
 	return json.Marshal(*c)
 }
+
+func (c *Config) FromJSON(data []byte) error {
+	if err := json.Unmarshal(data, c); err != nil {
+		return err
+	}
+	return nil
+}
