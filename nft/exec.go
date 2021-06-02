@@ -77,8 +77,8 @@ func execCommand(input []byte, args ...string) (*bytes.Buffer, error) {
 
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf(
-			"failed to execute %s %s: %v stdout:'%s' stderr:'%s'",
-			cmd.Path, strings.Join(cmd.Args, " "), err, stdout.String(), stderr.String(),
+			"failed to execute %s %s: %v stdin:'%s' stdout:'%s' stderr:'%s'",
+			cmd.Path, strings.Join(cmd.Args, " "), err, string(input), stdout.String(), stderr.String(),
 		)
 	}
 
