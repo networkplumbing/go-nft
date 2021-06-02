@@ -29,25 +29,25 @@ type ChainPolicy string
 
 // Chain Types
 const (
-	TypeFilter ChainType = "filter"
-	TypeNAT    ChainType = "nat"
-	TypeRoute  ChainType = "route"
+	TypeFilter ChainType = schema.TypeFilter
+	TypeNAT    ChainType = schema.TypeNAT
+	TypeRoute  ChainType = schema.TypeRoute
 )
 
 // Chain Hooks
 const (
-	HookPreRouting  ChainHook = "prerouting"
-	HookInput       ChainHook = "input"
-	HookOutput      ChainHook = "output"
-	HookForward     ChainHook = "forward"
-	HookPostRouting ChainHook = "postrouting"
-	HookIngress     ChainHook = "ingress"
+	HookPreRouting  ChainHook = schema.HookPreRouting
+	HookInput       ChainHook = schema.HookInput
+	HookOutput      ChainHook = schema.HookOutput
+	HookForward     ChainHook = schema.HookForward
+	HookPostRouting ChainHook = schema.HookPostRouting
+	HookIngress     ChainHook = schema.HookIngress
 )
 
 // Chain Policies
 const (
-	PolicyAccept ChainPolicy = "accept"
-	PolicyDrop   ChainPolicy = "drop"
+	PolicyAccept ChainPolicy = schema.PolicyAccept
+	PolicyDrop   ChainPolicy = schema.PolicyDrop
 )
 
 func NewRegularChain(table *schema.Table, name string) *schema.Chain {
