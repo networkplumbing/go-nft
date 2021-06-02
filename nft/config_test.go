@@ -60,3 +60,13 @@ func TestReadEmptyConfigWithMetaInfo(t *testing.T) {
 
 	assert.Equal(t, expectedConfig, config)
 }
+
+func TestFlushRuleset(t *testing.T) {
+	config := nft.NewConfig()
+	config.FlushRuleset()
+
+	expected := []byte(`{"nftables":[{"flush":{"ruleset":null}}]}`)
+	serializedConfig, err := config.ToJSON()
+	assert.NoError(t, err)
+	assert.Equal(t, string(expected), string(serializedConfig))
+}

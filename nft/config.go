@@ -45,3 +45,7 @@ func (c *Config) FromJSON(data []byte) error {
 	}
 	return nil
 }
+
+func (c *Config) FlushRuleset() {
+	c.Nftables = append(c.Nftables, schema.Nftable{Flush: &schema.Objects{Ruleset: true}})
+}
