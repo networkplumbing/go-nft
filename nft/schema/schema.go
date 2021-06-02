@@ -28,10 +28,38 @@ type Root struct {
 	Nftables []Nftable `json:"nftables"`
 }
 
+const ruleSetKey = "ruleset"
+
 type Objects struct {
-	Table *Table `json:"table,omitempty"`
-	Chain *Chain `json:"chain,omitempty"`
-	Rule  *Rule  `json:"rule,omitempty"`
+	Table   *Table `json:"table,omitempty"`
+	Chain   *Chain `json:"chain,omitempty"`
+	Rule    *Rule  `json:"rule,omitempty"`
+	Ruleset bool   `json:"-"`
+}
+
+func (o Objects) MarshalJSON() ([]byte, error) {
+	type _Objects Objects
+	objects := _Objects(o)
+
+	data, err := json.Marshal(objects)
+	if err != nil {
+		return nil, err
+	}
+
+	if o.Ruleset {
+		// Convert to a dynamic structure
+		var dynamicStructure map[string]json.RawMessage
+		if err := json.Unmarshal(data, &dynamicStructure); err != nil {
+			return nil, err
+		}
+		dynamicStructure[ruleSetKey] = nil
+		data, err = json.Marshal(dynamicStructure)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return data, nil
 }
 
 type Nftable struct {
