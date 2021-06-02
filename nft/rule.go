@@ -23,13 +23,14 @@ import (
 	"github.com/eddev/go-nft/nft/schema"
 )
 
-func NewRule(table *schema.Table, chain *schema.Chain, expr []schema.Statement, handle *int, comment string) *schema.Rule {
+func NewRule(table *schema.Table, chain *schema.Chain, expr []schema.Statement, handle *int, index *int, comment string) *schema.Rule {
 	c := &schema.Rule{
 		Family:  table.Family,
 		Table:   table.Name,
 		Chain:   chain.Name,
 		Expr:    expr,
 		Handle:  handle,
+		Index:   index,
 		Comment: comment,
 	}
 

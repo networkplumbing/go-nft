@@ -53,7 +53,7 @@ func testAddRuleWithRowExpression(t *testing.T) {
 
 	t.Run("Add rule with a row expression, check serialization", func(t *testing.T) {
 		statements, serializedStatements := matchWithRowExpression()
-		rule := nft.NewRule(table, chain, statements, nil, comment)
+		rule := nft.NewRule(table, chain, statements, nil, nil, comment)
 
 		config := nft.NewConfig()
 		config.AddRule(rule)
@@ -73,7 +73,7 @@ func testAddRuleWithRowExpression(t *testing.T) {
 		var deserializedConfig nft.Config
 		assert.NoError(t, json.Unmarshal(serializedConfig, &deserializedConfig))
 
-		rule := nft.NewRule(table, chain, statements, nil, comment)
+		rule := nft.NewRule(table, chain, statements, nil, nil, comment)
 		expectedConfig := nft.NewConfig()
 		expectedConfig.AddRule(rule)
 
@@ -89,7 +89,7 @@ func testAddRuleWithMatchAndVerdict(t *testing.T) {
 
 	t.Run("Add rule with match and verdict, check serialization", func(t *testing.T) {
 		statements, serializedStatements := matchSrcIP4withReturnVerdict()
-		rule := nft.NewRule(table, chain, statements, nil, comment)
+		rule := nft.NewRule(table, chain, statements, nil, nil, comment)
 
 		config := nft.NewConfig()
 		config.AddRule(rule)
@@ -109,7 +109,7 @@ func testAddRuleWithMatchAndVerdict(t *testing.T) {
 		var deserializedConfig nft.Config
 		assert.NoError(t, json.Unmarshal(serializedConfig, &deserializedConfig))
 
-		rule := nft.NewRule(table, chain, statements, nil, comment)
+		rule := nft.NewRule(table, chain, statements, nil, nil, comment)
 		expectedConfig := nft.NewConfig()
 		expectedConfig.AddRule(rule)
 
@@ -123,7 +123,7 @@ func testDeleteRule(t *testing.T) {
 
 	t.Run("Delete rule", func(t *testing.T) {
 		handleID := 100
-		rule := nft.NewRule(table, chain, nil, &handleID, "")
+		rule := nft.NewRule(table, chain, nil, &handleID, nil, "")
 
 		config := nft.NewConfig()
 		config.DeleteRule(rule)

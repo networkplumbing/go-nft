@@ -134,6 +134,7 @@ type Rule struct {
 	Chain   string      `json:"chain"`
 	Expr    []Statement `json:"expr,omitempty"`
 	Handle  *int        `json:"handle,omitempty"`
+	Index   *int        `json:"index,omitempty"`
 	Comment string      `json:"comment,omitempty"`
 }
 
