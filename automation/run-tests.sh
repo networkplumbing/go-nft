@@ -13,7 +13,15 @@ CONTAINER_WORKSPACE="/workspace/go-nft"
 test -t 1 && USE_TTY="-t"
 
 function run_container {
-    ${CONTAINER_CMD} run $USE_TTY -i --rm  --cap-add=NET_ADMIN --cap-add=NET_RAW -v "$PROJECT_PATH":"$CONTAINER_WORKSPACE":Z -w "$CONTAINER_WORKSPACE" "$CONTAINER_IMG" \
+    ${CONTAINER_CMD} run \
+        $USE_TTY \
+        -i \
+        --rm \
+        --cap-add=NET_ADMIN \
+        --cap-add=NET_RAW \
+        -v "$PROJECT_PATH":"$CONTAINER_WORKSPACE":Z \
+        -w "$CONTAINER_WORKSPACE" \
+        "$CONTAINER_IMG" \
     sh -c "$1"
 }
 
