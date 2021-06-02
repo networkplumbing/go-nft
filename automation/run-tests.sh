@@ -10,6 +10,8 @@ CONTAINER_WORKSPACE="/workspace/go-nft"
 : "${CONTAINER_CMD:="docker"}"
 : "${CONTAINER_IMG:="golang:alpine"}"
 
+: "${DISABLE_IPV6_IN_CONTAINER:=0}"
+
 test -t 1 && USE_TTY="-t"
 
 function run_container {
@@ -19,6 +21,7 @@ function run_container {
         --rm \
         --cap-add=NET_ADMIN \
         --cap-add=NET_RAW \
+        --sysctl net.ipv6.conf.all.disable_ipv6=$DISABLE_IPV6_IN_CONTAINER \
         -v "$PROJECT_PATH":"$CONTAINER_WORKSPACE":Z \
         -w "$CONTAINER_WORKSPACE" \
         "$CONTAINER_IMG" \
