@@ -239,7 +239,7 @@ func (e Expression) MarshalJSON() ([]byte, error) {
 		dynamicStruct = *e.Int
 	case e.Bool != nil:
 		dynamicStruct = *e.Bool
-	case e.Payload != nil:
+	default:
 		type _Expression Expression
 		dynamicStruct = _Expression(e)
 	}
@@ -264,14 +264,12 @@ func (e *Expression) UnmarshalJSON(data []byte) error {
 		d := dynamicStruct.(bool)
 		e.Bool = &d
 	case map[string]interface{}:
-		if dynamicKeyValue := dynamicStruct.(map[string]interface{}); dynamicKeyValue != nil {
-			type _Expression Expression
-			expression := _Expression(*e)
-			if err := json.Unmarshal(data, &expression); err != nil {
-				return err
-			}
-			*e = Expression(expression)
+		type _Expression Expression
+		expression := _Expression(*e)
+		if err := json.Unmarshal(data, &expression); err != nil {
+			return err
 		}
+		*e = Expression(expression)
 	default:
 		return fmt.Errorf("unsupported field type in expression")
 	}
