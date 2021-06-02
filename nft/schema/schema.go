@@ -52,10 +52,43 @@ type Metainfo struct {
 	JsonSchemaVersion int    `json:"json_schema_version"`
 }
 
+// Table Address Families
+const (
+	FamilyIP     = "ip"     // IPv4 address AddressFamily.
+	FamilyIP6    = "ip6"    // IPv6 address AddressFamily.
+	FamilyINET   = "inet"   // Internet (IPv4/IPv6) address AddressFamily.
+	FamilyARP    = "arp"    // ARP address AddressFamily, handling IPv4 ARP packets.
+	FamilyBRIDGE = "bridge" // Bridge address AddressFamily, handling packets which traverse a bridge device.
+	FamilyNETDEV = "netdev" // Netdev address AddressFamily, handling packets from ingress.
+)
+
 type Table struct {
 	Family string `json:"family"`
 	Name   string `json:"name"`
 }
+
+// Chain Types
+const (
+	TypeFilter = "filter"
+	TypeNAT    = "nat"
+	TypeRoute  = "route"
+)
+
+// Chain Hooks
+const (
+	HookPreRouting  = "prerouting"
+	HookInput       = "input"
+	HookOutput      = "output"
+	HookForward     = "forward"
+	HookPostRouting = "postrouting"
+	HookIngress     = "ingress"
+)
+
+// Chain Policies
+const (
+	PolicyAccept = "accept"
+	PolicyDrop   = "drop"
+)
 
 type Chain struct {
 	Family string `json:"family"`

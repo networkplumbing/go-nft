@@ -25,12 +25,12 @@ type AddressFamily string
 
 // Address Families
 const (
-	FamilyIP     AddressFamily = "ip"     // IPv4 address AddressFamily.
-	FamilyIP6    AddressFamily = "ip6"    // IPv6 address AddressFamily.
-	FamilyINET   AddressFamily = "inet"   // Internet (IPv4/IPv6) address AddressFamily.
-	FamilyARP    AddressFamily = "arp"    // ARP address AddressFamily, handling IPv4 ARP packets.
-	FamilyBRIDGE AddressFamily = "bridge" // Bridge address AddressFamily, handling packets which traverse a bridge device.
-	FamilyNETDEV AddressFamily = "netdev" // Netdev address AddressFamily, handling packets from ingress.
+	FamilyIP     AddressFamily = schema.FamilyIP
+	FamilyIP6    AddressFamily = schema.FamilyIP6
+	FamilyINET   AddressFamily = schema.FamilyINET
+	FamilyARP    AddressFamily = schema.FamilyARP
+	FamilyBRIDGE AddressFamily = schema.FamilyBRIDGE
+	FamilyNETDEV AddressFamily = schema.FamilyNETDEV
 )
 
 type TableAction string
