@@ -46,3 +46,22 @@ func (c *Config) DeleteRule(rule *schema.Rule) {
 	nftable := schema.Nftable{Delete: &schema.Objects{Rule: rule}}
 	c.Nftables = append(c.Nftables, nftable)
 }
+
+type RuleIndex int
+
+// NewRuleIndex returns a rule index object which acts as an iterator.
+// When multiple rules are added to a chain, index allows to define an order between them.
+// The first rule which is added to a chain should have no index (it is assigned index 0),
+// following rules should have the index set, referencing after/before which rule the new one is to be added/inserted.
+func NewRuleIndex() *RuleIndex {
+	var index RuleIndex = -1
+	return &index
+}
+
+// Next returns the next iteration value as an integer pointer.
+// When first time called, it returns the value 0.
+func (i *RuleIndex) Next() *int {
+	*i++
+	var index = int(*i)
+	return &index
+}
