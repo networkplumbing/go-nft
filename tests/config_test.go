@@ -28,7 +28,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReadEmptyConfig(t *testing.T) {
+func TestConfig(t *testing.T) {
+	runTestWithFlushTable(t, testReadEmptyConfig)
+	runTestWithFlushTable(t, testApplyConfigWithAnEmptyTable)
+}
+
+func runTestWithFlushTable(t *testing.T, test func(t *testing.T)) {
+	test(t)
+
+	nft.ApplyConfig(&nft.Config{schema.Root{Nftables: []schema.Nftable{
+		{Flush: &schema.Objects{Ruleset: true}},
+	}}})
+}
+
+func testReadEmptyConfig(t *testing.T) {
 	config, err := nft.ReadConfig()
 	assert.NoError(t, err)
 	assert.Len(t, config.Nftables, 1, "Expecting just the metainfo entry")
@@ -42,7 +55,7 @@ func TestReadEmptyConfig(t *testing.T) {
 	assert.Equal(t, expectedConfig, config)
 }
 
-func TestApplyConfigWithAnEmptyTable(t *testing.T) {
+func testApplyConfigWithAnEmptyTable(t *testing.T) {
 	config := nft.NewConfig()
 	config.AddTable(nft.NewTable("mytable", nft.FamilyIP))
 
