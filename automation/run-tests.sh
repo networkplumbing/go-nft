@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -xe
+set -e
 
 EXEC_PATH=$(dirname "$(realpath "$0")")
 PROJECT_PATH="$(dirname $EXEC_PATH)"
@@ -13,6 +13,37 @@ CONTAINER_WORKSPACE="/workspace/go-nft"
 : "${DISABLE_IPV6_IN_CONTAINER:=0}"
 
 test -t 1 && USE_TTY="-t"
+
+options=$(getopt --options "" \
+    --long build,fmt,unit-test,integration-test,help\
+    -- "${@}")
+eval set -- "$options"
+while true; do
+    case "$1" in
+    --build)
+        OPT_BUILD=1
+        ;;
+    --fmt)
+        OPT_FMT=1
+        ;;
+    --unit-test)
+        OPT_UTEST=1
+        ;;
+    --integration-test)
+        OPT_ITEST=1
+        ;;
+    --help)
+        set +x
+        echo "$0 [--build] [--fmt] [--unit-test] [--integration-test]"
+        exit
+        ;;
+    --)
+        shift
+        break
+        ;;
+    esac
+    shift
+done
 
 function run_container {
     ${CONTAINER_CMD} run \
@@ -28,8 +59,33 @@ function run_container {
     sh -c "$1"
 }
 
-run_container '
-    apk add --no-cache nftables gcc musl-dev
-    nft -j list ruleset
-    go test -v ./tests
-'
+if [ -z "${OPT_BUILD}" ] && [ -z "${OPT_FMT}" ] && [ -z "${OPT_UTEST}" ] && [ -z "${OPT_ITEST}" ]; then
+    OPT_BUILD=1
+    OPT_FMT=1
+    OPT_UTEST=1
+    OPT_ITEST=1
+fi
+
+if [ -n "${OPT_BUILD}" ]; then
+    go build -v ./...
+fi
+
+if [ -n "${OPT_FMT}" ]; then
+        unformatted=$(gofmt -l ./nft ./tests)
+        test -z "$unformatted" || (echo "Unformatted: $unformatted" && false)
+
+        unformatted=$(go run golang.org/x/tools/cmd/goimports -l --local "github.com/eddev/go-nft" ./nft ./tests)
+        test -z "$unformatted" || (echo "Unformatted imports: $unformatted" && false)
+fi
+
+if [ -n "${OPT_UTEST}" ]; then
+    go test -v ./nft
+fi
+
+if [ -n "${OPT_ITEST}" ]; then
+    run_container '
+        apk add --no-cache nftables gcc musl-dev
+        nft -j list ruleset
+        go test -v ./tests
+    '
+fi

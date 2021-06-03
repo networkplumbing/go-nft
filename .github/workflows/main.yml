@@ -19,21 +19,13 @@ jobs:
         go-version: 1.16
 
     - name: Format Check
-      run: |
-        unformatted=$(gofmt -l ./nft ./tests)
-        test -z "$unformatted" || (echo "Unformatted: $unformatted" && false)
-
-    - name: Import Format Check
-      run: |
-        go get golang.org/x/tools/cmd/goimports
-        unformatted=$(goimports -l --local "github.com/eddev/go-nft" ./nft ./tests)
-        test -z "$unformatted" || (echo "Unformatted imports: $unformatted" && false)
+      run: ./automation/run-tests.sh --fmt
 
     - name: Build
-      run: go build -v ./...
+      run: ./automation/run-tests.sh --build
 
     - name: Run Unit Tests
-      run: go test -v ./nft
+      run: ./automation/run-tests.sh --unit-test
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -44,4 +36,4 @@ jobs:
         run: sudo service docker start
 
       - name: Run Integration Tests
-        run: ./automation/run-tests.sh
+        run: ./automation/run-tests.sh --integration-test
