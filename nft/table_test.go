@@ -47,7 +47,7 @@ func testTableActions(t *testing.T) {
 		nft.FamilyIP,
 		nft.FamilyIP6,
 		nft.FamilyINET,
-		nft.FamilyBRIDGE,
+		nft.FamilyBridge,
 		nft.FamilyARP,
 		nft.FamilyNETDEV,
 	}

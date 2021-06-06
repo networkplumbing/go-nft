@@ -29,7 +29,7 @@ const (
 	FamilyIP6    AddressFamily = schema.FamilyIP6
 	FamilyINET   AddressFamily = schema.FamilyINET
 	FamilyARP    AddressFamily = schema.FamilyARP
-	FamilyBRIDGE AddressFamily = schema.FamilyBRIDGE
+	FamilyBridge AddressFamily = schema.FamilyBridge
 	FamilyNETDEV AddressFamily = schema.FamilyNETDEV
 )
 
