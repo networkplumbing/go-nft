@@ -99,7 +99,7 @@ func buildNoMacSpoofingConfigImperatively(ifaceName string, macAddress string) *
 	)
 	config := nft.NewConfig()
 
-	table := nft.NewTable("example", nft.FamilyBRIDGE)
+	table := nft.NewTable("example", nft.FamilyBridge)
 	config.AddTable(table)
 
 	chainType, chainHook, chainPrio, chainPolicy := nft.TypeFilter, nft.HookPreRouting, -300, nft.PolicyAccept
@@ -168,10 +168,10 @@ func buildNoMacSpoofingConfigDecleratively(ifaceName string, macAddress string) 
 	)
 
 	return &nft.Config{schema.Root{Nftables: []schema.Nftable{
-		{Table: &schema.Table{Family: schema.FamilyBRIDGE, Name: tableName}},
+		{Table: &schema.Table{Family: schema.FamilyBridge, Name: tableName}},
 
 		{Chain: &schema.Chain{
-			Family: schema.FamilyBRIDGE,
+			Family: schema.FamilyBridge,
 			Table:  tableName,
 			Name:   baseChainName,
 			Type:   schema.TypeFilter,
@@ -180,18 +180,18 @@ func buildNoMacSpoofingConfigDecleratively(ifaceName string, macAddress string) 
 			Policy: schema.PolicyAccept,
 		}},
 		{Chain: &schema.Chain{
-			Family: schema.FamilyBRIDGE,
+			Family: schema.FamilyBridge,
 			Table:  tableName,
 			Name:   ifaceChainName,
 		}},
 		{Chain: &schema.Chain{
-			Family: schema.FamilyBRIDGE,
+			Family: schema.FamilyBridge,
 			Table:  tableName,
 			Name:   macChainName,
 		}},
 
 		{Rule: &schema.Rule{
-			Family: schema.FamilyBRIDGE,
+			Family: schema.FamilyBridge,
 			Table:  tableName,
 			Chain:  baseChainName,
 			Expr: []schema.Statement{
@@ -205,7 +205,7 @@ func buildNoMacSpoofingConfigDecleratively(ifaceName string, macAddress string) 
 			Comment: "match input interface name",
 		}},
 		{Rule: &schema.Rule{
-			Family: schema.FamilyBRIDGE,
+			Family: schema.FamilyBridge,
 			Table:  tableName,
 			Chain:  ifaceChainName,
 			Expr: []schema.Statement{
@@ -214,7 +214,7 @@ func buildNoMacSpoofingConfigDecleratively(ifaceName string, macAddress string) 
 			Comment: "redirect to mac-chain",
 		}},
 		{Rule: &schema.Rule{
-			Family: schema.FamilyBRIDGE,
+			Family: schema.FamilyBridge,
 			Table:  tableName,
 			Chain:  macChainName,
 			Expr: []schema.Statement{
@@ -231,7 +231,7 @@ func buildNoMacSpoofingConfigDecleratively(ifaceName string, macAddress string) 
 			Comment: "match source mac address",
 		}},
 		{Rule: &schema.Rule{
-			Family: schema.FamilyBRIDGE,
+			Family: schema.FamilyBridge,
 			Table:  tableName,
 			Chain:  macChainName,
 			Index:  macRulesIndex.Next(),
