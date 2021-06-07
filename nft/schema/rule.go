@@ -63,10 +63,14 @@ type Match struct {
 }
 
 type Expression struct {
-	String  *string         `json:"-"`
-	Bool    *bool           `json:"-"`
-	Int     *int            `json:"-"`
-	Payload *Payload        `json:"payload,omitempty"`
+	String  *string  `json:"-"`
+	Bool    *bool    `json:"-"`
+	Int     *int     `json:"-"`
+	Payload *Payload `json:"payload,omitempty"`
+	// RowData accepts arbitrary data which cannot be composed from the existing schema.
+	// Use `json.RawMessage()` or `[]byte()` for the value.
+	// Example:
+	// `schema.Expression{RowData: json.RawMessage(`{"meta":{"key":"iifname"}}`)}`
 	RowData json.RawMessage `json:"-"`
 }
 
