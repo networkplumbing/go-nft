@@ -48,6 +48,8 @@ func TestChain(t *testing.T) {
 	// Removal of base-chains is identical to the removal of regular-chains.
 	// Therefore, such scenarios are evaluated through the regular-chains actions
 	testRegularChainsActions(t)
+
+	testChainLookup(t)
 }
 
 func testAddBaseChains(t *testing.T) {
@@ -147,4 +149,38 @@ func createChainTestName(action chainAction, ctype nft.ChainType, hook nft.Chain
 	}
 
 	return strings.Join(args, " ")
+}
+
+func testChainLookup(t *testing.T) {
+	config := nft.NewConfig()
+	table_br := nft.NewTable("table-br", nft.FamilyBridge)
+	config.AddTable(table_br)
+
+	chainRegular := nft.NewRegularChain(table_br, "chain-regular")
+	config.AddChain(chainRegular)
+
+	ctype, hook, prio, policy := nft.TypeFilter, nft.HookPreRouting, 100, nft.PolicyAccept
+	chainBase := nft.NewChain(table_br, "chain-base", &ctype, &hook, &prio, &policy)
+	config.AddChain(chainBase)
+
+	t.Run("Lookup an existing regular chain", func(t *testing.T) {
+		chain := config.LookupChain(chainRegular)
+		assert.Equal(t, chainRegular, chain)
+	})
+
+	t.Run("Lookup an existing base chain", func(t *testing.T) {
+		chain := config.LookupChain(chainBase)
+		assert.Equal(t, chainBase, chain)
+	})
+
+	t.Run("Lookup a missing regular chain", func(t *testing.T) {
+		chain := nft.NewRegularChain(table_br, "chain-na")
+		assert.Nil(t, config.LookupChain(chain))
+	})
+
+	t.Run("Lookup a missing base chain", func(t *testing.T) {
+		inputHook := nft.HookInput
+		chain := nft.NewChain(table_br, "chain-base", &ctype, &inputHook, &prio, &policy)
+		assert.Nil(t, config.LookupChain(chain))
+	})
 }

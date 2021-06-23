@@ -90,3 +90,29 @@ func (c *Config) FlushChain(chain *schema.Chain) {
 	nftable := schema.Nftable{Flush: &schema.Objects{Chain: chain}}
 	c.Nftables = append(c.Nftables, nftable)
 }
+
+func (c *Config) LookupChain(toFind *schema.Chain) *schema.Chain {
+	for _, nftable := range c.Nftables {
+		if chain := nftable.Chain; chain != nil {
+			match := chain.Table == toFind.Table && chain.Family == toFind.Family && chain.Name == toFind.Name
+			if match {
+				if t := toFind.Type; t != "" {
+					match = match && chain.Type == t
+				}
+				if h := toFind.Hook; h != "" {
+					match = match && chain.Hook == h
+				}
+				if p := toFind.Prio; p != nil {
+					match = match && chain.Prio != nil && *chain.Prio == *p
+				}
+				if p := toFind.Policy; p != "" {
+					match = match && chain.Policy == p
+				}
+				if match {
+					return chain
+				}
+			}
+		}
+	}
+	return nil
+}
