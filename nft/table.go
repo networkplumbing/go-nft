@@ -63,3 +63,14 @@ func (c *Config) FlushTable(table *schema.Table) {
 	nftable := schema.Nftable{Flush: &schema.Objects{Table: table}}
 	c.Nftables = append(c.Nftables, nftable)
 }
+
+func (c *Config) LookupTable(toFind *schema.Table) *schema.Table {
+	for _, nftable := range c.Nftables {
+		if t := nftable.Table; t != nil {
+			if t.Name == toFind.Name && t.Family == toFind.Family {
+				return t
+			}
+		}
+	}
+	return nil
+}

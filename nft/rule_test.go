@@ -43,6 +43,8 @@ func TestRule(t *testing.T) {
 	testDeleteRule(t)
 
 	testAddRuleWithRowExpression(t)
+
+	testRuleLookup(t)
 }
 
 func testAddRuleWithRowExpression(t *testing.T) {
@@ -203,4 +205,67 @@ func matchWithRowExpression() ([]schema.Statement, string) {
 	serializedStatements := fmt.Sprintf(`"expr":[{%s}]`, expectedMatch)
 
 	return statements, serializedStatements
+}
+
+func testRuleLookup(t *testing.T) {
+	config := nft.NewConfig()
+	table_br := nft.NewTable("table-br", nft.FamilyBridge)
+	config.AddTable(table_br)
+
+	chainRegular := nft.NewRegularChain(table_br, "chain-regular")
+	config.AddChain(chainRegular)
+
+	ruleSimple := nft.NewRule(table_br, chainRegular, nil, nil, nil, "comment123")
+	config.AddRule(ruleSimple)
+
+	ruleWithStatement := nft.NewRule(table_br, chainRegular, []schema.Statement{{}}, nil, nil, "comment456")
+	ruleWithStatement.Expr[0].Drop = true
+	config.AddRule(ruleWithStatement)
+
+	handle := 10
+	index := 1
+	ruleWithAllParams := nft.NewRule(table_br, chainRegular, []schema.Statement{{}, {}}, &handle, &index, "comment789")
+	config.AddRule(ruleWithAllParams)
+
+	t.Run("Lookup an existing rule by table, chain and comment", func(t *testing.T) {
+		rules := config.LookupRule(ruleSimple)
+		assert.Len(t, rules, 1)
+		assert.Equal(t, ruleSimple, rules[0])
+	})
+
+	t.Run("Lookup an existing rule by table, chain, statement and comment", func(t *testing.T) {
+		rules := config.LookupRule(ruleWithStatement)
+		assert.Len(t, rules, 1)
+		assert.Equal(t, ruleWithStatement, rules[0])
+	})
+
+	t.Run("Lookup an existing rule by all (root) parameters", func(t *testing.T) {
+		rules := config.LookupRule(ruleWithAllParams)
+		assert.Len(t, rules, 1)
+		assert.Equal(t, ruleWithAllParams, rules[0])
+	})
+
+	t.Run("Lookup a missing rule (comment not matching)", func(t *testing.T) {
+		rule := nft.NewRule(table_br, chainRegular, nil, nil, nil, "comment-missing")
+		assert.Empty(t, config.LookupRule(rule))
+	})
+
+	t.Run("Lookup a missing rule (statement content not matching)", func(t *testing.T) {
+		rule := nft.NewRule(table_br, chainRegular, []schema.Statement{{}}, nil, nil, "comment456")
+		rule.Expr[0].Drop = false
+		rule.Expr[0].Return = true
+		assert.Empty(t, config.LookupRule(rule))
+	})
+
+	t.Run("Lookup a missing rule (statements count not matching)", func(t *testing.T) {
+		rule := nft.NewRule(table_br, chainRegular, []schema.Statement{{}, {}}, nil, nil, "comment456")
+		rule.Expr[0].Drop = true
+		assert.Empty(t, config.LookupRule(rule))
+	})
+
+	t.Run("Lookup a missing rule (handle not matching)", func(t *testing.T) {
+		changedHandle := 99
+		rule := nft.NewRule(table_br, chainRegular, []schema.Statement{{}, {}}, &changedHandle, &index, "comment789")
+		assert.Empty(t, config.LookupRule(rule))
+	})
 }

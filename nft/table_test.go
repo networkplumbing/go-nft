@@ -35,6 +35,7 @@ const tableName = "test-table"
 
 func TestTable(t *testing.T) {
 	testTableActions(t)
+	testTableLookup(t)
 }
 
 func testTableActions(t *testing.T) {
@@ -75,5 +76,25 @@ func testTableAction(t *testing.T, actionName nft.TableAction, actionFunc tableA
 			expected = []byte(fmt.Sprintf(`{"nftables":[{%q:{"table":{"family":%q,"name":%q}}}]}`, actionName, family, tableName))
 		}
 		assert.Equal(t, string(expected), string(serializedConfig))
+	})
+}
+
+func testTableLookup(t *testing.T) {
+	config := nft.NewConfig()
+	config.AddTable(nft.NewTable("table-ip", nft.FamilyIP))
+	config.AddTable(nft.NewTable("table-ip", nft.FamilyIP6))
+	table_br := nft.NewTable("table-br", nft.FamilyBridge)
+	config.AddTable(table_br)
+
+	config.AddChain(nft.NewRegularChain(table_br, "chain-br"))
+
+	t.Run("Lookup an existing table", func(t *testing.T) {
+		table := config.LookupTable(table_br)
+		assert.Equal(t, *table_br, *table)
+	})
+
+	t.Run("Lookup a missing table", func(t *testing.T) {
+		table := config.LookupTable(nft.NewTable("table-na", nft.FamilyBridge))
+		assert.Nil(t, table)
 	})
 }

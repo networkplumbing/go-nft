@@ -20,6 +20,9 @@
 package nft
 
 import (
+	"bytes"
+	"encoding/json"
+
 	"github.com/eddev/go-nft/nft/schema"
 )
 
@@ -45,6 +48,51 @@ func (c *Config) AddRule(rule *schema.Rule) {
 func (c *Config) DeleteRule(rule *schema.Rule) {
 	nftable := schema.Nftable{Delete: &schema.Objects{Rule: rule}}
 	c.Nftables = append(c.Nftables, nftable)
+}
+
+func (c *Config) LookupRule(toFind *schema.Rule) []*schema.Rule {
+	var rules []*schema.Rule
+
+	for _, nftable := range c.Nftables {
+		if r := nftable.Rule; r != nil {
+			match := r.Table == toFind.Table && r.Family == toFind.Family && r.Chain == toFind.Chain
+			if match {
+				if h := toFind.Handle; h != nil {
+					match = match && r.Handle != nil && *r.Handle == *h
+				}
+				if i := toFind.Index; i != nil {
+					match = match && r.Index != nil && *r.Index == *i
+				}
+				if co := toFind.Comment; co != "" {
+					match = match && r.Comment == co
+				}
+				if toFindStatements := toFind.Expr; toFindStatements != nil {
+					if match = match && len(toFindStatements) == len(r.Expr); match {
+						for i, toFindStatement := range toFindStatements {
+							equal, err := areStatementsEqual(toFindStatement, r.Expr[i])
+							match = match && err == nil && equal
+						}
+					}
+				}
+				if match {
+					rules = append(rules, r)
+				}
+			}
+		}
+	}
+	return rules
+}
+
+func areStatementsEqual(statementA, statementB schema.Statement) (bool, error) {
+	statementARow, err := json.Marshal(statementA)
+	if err != nil {
+		return false, err
+	}
+	statementBRow, err := json.Marshal(statementB)
+	if err != nil {
+		return false, err
+	}
+	return bytes.Equal(statementARow, statementBRow), nil
 }
 
 type RuleIndex int
