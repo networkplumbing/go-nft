@@ -45,6 +45,8 @@ func TestRule(t *testing.T) {
 	testAddRuleWithRowExpression(t)
 
 	testRuleLookup(t)
+
+	testReadRuleWithNumericalExpression(t)
 }
 
 func testAddRuleWithRowExpression(t *testing.T) {
@@ -267,5 +269,16 @@ func testRuleLookup(t *testing.T) {
 		changedHandle := 99
 		rule := nft.NewRule(table_br, chainRegular, []schema.Statement{{}, {}}, &changedHandle, &index, "comment789")
 		assert.Empty(t, config.LookupRule(rule))
+	})
+}
+
+func testReadRuleWithNumericalExpression(t *testing.T) {
+	t.Run("Read rule with numerical expression", func(t *testing.T) {
+		c := nft.NewConfig()
+		assert.NoError(t, c.FromJSON([]byte(`
+		{"nftables":[{"rule":{
+		   "expr":[{"match":{"op":"==","left":"foo","right":12345}}]
+		}}]}
+		`)))
 	})
 }

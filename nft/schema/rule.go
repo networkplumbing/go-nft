@@ -65,7 +65,7 @@ type Match struct {
 type Expression struct {
 	String  *string  `json:"-"`
 	Bool    *bool    `json:"-"`
-	Int     *int     `json:"-"`
+	Float64 *float64 `json:"-"`
 	Payload *Payload `json:"payload,omitempty"`
 	// RowData accepts arbitrary data which cannot be composed from the existing schema.
 	// Use `json.RawMessage()` or `[]byte()` for the value.
@@ -197,8 +197,8 @@ func (e Expression) MarshalJSON() ([]byte, error) {
 		return e.RowData, nil
 	case e.String != nil:
 		dynamicStruct = *e.String
-	case e.Int != nil:
-		dynamicStruct = *e.Int
+	case e.Float64 != nil:
+		dynamicStruct = *e.Float64
 	case e.Bool != nil:
 		dynamicStruct = *e.Bool
 	default:
@@ -219,9 +219,9 @@ func (e *Expression) UnmarshalJSON(data []byte) error {
 	case string:
 		d := dynamicStruct.(string)
 		e.String = &d
-	case int:
-		d := dynamicStruct.(int)
-		e.Int = &d
+	case float64:
+		d := dynamicStruct.(float64)
+		e.Float64 = &d
 	case bool:
 		d := dynamicStruct.(bool)
 		e.Bool = &d
@@ -233,10 +233,10 @@ func (e *Expression) UnmarshalJSON(data []byte) error {
 		}
 		*e = Expression(expression)
 	default:
-		return fmt.Errorf("unsupported field type in expression")
+		return fmt.Errorf("unsupported field type in expression: %T(%v)", dynamicStruct, dynamicStruct)
 	}
 
-	if e.String == nil && e.Int == nil && e.Bool == nil && e.Payload == nil {
+	if e.String == nil && e.Float64 == nil && e.Bool == nil && e.Payload == nil {
 		e.RowData = data
 	}
 
