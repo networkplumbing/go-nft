@@ -23,10 +23,10 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/eddev/go-nft/nft"
 	"github.com/eddev/go-nft/nft/schema"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNoMacSpoofingExample(t *testing.T) {
@@ -46,23 +46,23 @@ func testNoMacSpoofingExample(t *testing.T) {
 	)
 
 	desiredConfig := buildNoMacSpoofingConfigImperatively(ifaceName, macAddress)
-	assert.Equal(t, desiredConfig, buildNoMacSpoofingConfigDecleratively(ifaceName, macAddress))
-	assert.NoError(t, nft.ApplyConfig(desiredConfig))
+	require.Equal(t, desiredConfig, buildNoMacSpoofingConfigDecleratively(ifaceName, macAddress))
+	require.NoError(t, nft.ApplyConfig(desiredConfig))
 
 	actualConfig, err := nft.ReadConfig()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	expectedNftablesEntries := len(desiredConfig.Nftables) + 1 // +1 for the metainfo entry.
-	assert.Len(t, actualConfig.Nftables, expectedNftablesEntries)
+	require.Len(t, actualConfig.Nftables, expectedNftablesEntries)
 
 	desiredConfig = normalizeConfigForComparison(desiredConfig)
 	actualConfig = normalizeConfigForComparison(actualConfig)
 
 	desiredJson, err := desiredConfig.ToJSON()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	actualJson, err := actualConfig.ToJSON()
-	assert.NoError(t, err)
-	assert.Equal(t, string(desiredJson), string(actualJson))
+	require.NoError(t, err)
+	require.Equal(t, string(desiredJson), string(actualJson))
 }
 
 // normalizeConfigForComparison returns the configuration ready for comparison with another by
