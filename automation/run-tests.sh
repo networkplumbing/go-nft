@@ -8,7 +8,7 @@ PROJECT_PATH="$(dirname $EXEC_PATH)"
 CONTAINER_WORKSPACE="/workspace/go-nft"
 
 : "${CONTAINER_CMD:="docker"}"
-: "${CONTAINER_IMG:="golang:alpine"}"
+: "${CONTAINER_IMG:="golang:1.16.4-alpine3.13"}"
 
 : "${DISABLE_IPV6_IN_CONTAINER:=0}"
 
