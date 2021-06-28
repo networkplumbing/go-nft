@@ -242,3 +242,19 @@ func (e *Expression) UnmarshalJSON(data []byte) error {
 
 	return nil
 }
+
+func Accept() Verdict {
+	return Verdict{SimpleVerdict: SimpleVerdict{Accept: true}}
+}
+
+func Continue() Verdict {
+	return Verdict{SimpleVerdict: SimpleVerdict{Continue: true}}
+}
+
+func Drop() Verdict {
+	return Verdict{SimpleVerdict: SimpleVerdict{Drop: true}}
+}
+
+func Return() Verdict {
+	return Verdict{SimpleVerdict: SimpleVerdict{Return: true}}
+}

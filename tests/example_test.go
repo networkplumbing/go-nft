@@ -138,14 +138,12 @@ func buildNoMacSpoofingConfigImperatively(ifaceName string, macAddress string) *
 			}},
 			Right: schema.Expression{String: &macAddress},
 		}},
-		{Verdict: schema.Verdict{SimpleVerdict: schema.SimpleVerdict{Return: true}}},
+		{Verdict: schema.Return()},
 	}
 	matchSrcMacRule := nft.NewRule(table, macChain, matchSrcMacAndReturn, nil, nil, "match source mac address")
 	config.AddRule(matchSrcMacRule)
 
-	drop := []schema.Statement{
-		{Verdict: schema.Verdict{SimpleVerdict: schema.SimpleVerdict{Drop: true}}},
-	}
+	drop := []schema.Statement{{Verdict: schema.Drop()}}
 	// When multiple rules are added to a chain, index allows to define an order between them.
 	macRulesIndex := nft.NewRuleIndex()
 	dropRule := nft.NewRule(table, macChain, drop, nil, macRulesIndex.Next(), "drop all the rest")
@@ -226,18 +224,16 @@ func buildNoMacSpoofingConfigDecleratively(ifaceName string, macAddress string) 
 					}},
 					Right: schema.Expression{String: &macAddress},
 				}},
-				{Verdict: schema.Verdict{SimpleVerdict: schema.SimpleVerdict{Return: true}}},
+				{Verdict: schema.Return()},
 			},
 			Comment: "match source mac address",
 		}},
 		{Rule: &schema.Rule{
-			Family: schema.FamilyBridge,
-			Table:  tableName,
-			Chain:  macChainName,
-			Index:  macRulesIndex.Next(),
-			Expr: []schema.Statement{
-				{Verdict: schema.Verdict{SimpleVerdict: schema.SimpleVerdict{Drop: true}}},
-			},
+			Family:  schema.FamilyBridge,
+			Table:   tableName,
+			Chain:   macChainName,
+			Index:   macRulesIndex.Next(),
+			Expr:    []schema.Statement{{Verdict: schema.Drop()}},
 			Comment: "drop all the rest",
 		}},
 	}}}
