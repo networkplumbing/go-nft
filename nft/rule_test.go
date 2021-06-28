@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	assert "github.com/stretchr/testify/require"
 
 	"github.com/eddev/go-nft/nft"
 	"github.com/eddev/go-nft/nft/schema"

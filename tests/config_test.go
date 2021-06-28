@@ -22,10 +22,10 @@ package tests
 import (
 	"testing"
 
+	assert "github.com/stretchr/testify/require"
+
 	"github.com/eddev/go-nft/nft"
 	"github.com/eddev/go-nft/nft/schema"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestConfig(t *testing.T) {
