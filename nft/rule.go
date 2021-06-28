@@ -26,6 +26,7 @@ import (
 	"github.com/eddev/go-nft/nft/schema"
 )
 
+// NewRule returns a new schema rule structure.
 func NewRule(table *schema.Table, chain *schema.Chain, expr []schema.Statement, handle *int, index *int, comment string) *schema.Rule {
 	c := &schema.Rule{
 		Family:  table.Family,
@@ -40,16 +41,28 @@ func NewRule(table *schema.Table, chain *schema.Chain, expr []schema.Statement, 
 	return c
 }
 
+// AddRule appends the given rule to the nftable config.
+// The rule is added without an explicit action (`add`).
+// Adding multiple times the same rule will result in multiple identical rules when applied.
 func (c *Config) AddRule(rule *schema.Rule) {
 	nftable := schema.Nftable{Rule: rule}
 	c.Nftables = append(c.Nftables, nftable)
 }
 
+// DeleteRule appends a given rule to the nftable config
+// with the `delete` action.
+// A rule is identified by its handle ID and it must be present in the given rule.
+// Attempting to delete a non-existing rule, results with a failure when the config is applied.
+// A common usage is to use LookupRule() and then to pass the result to DeleteRule.
 func (c *Config) DeleteRule(rule *schema.Rule) {
 	nftable := schema.Nftable{Delete: &schema.Objects{Rule: rule}}
 	c.Nftables = append(c.Nftables, nftable)
 }
 
+// LookupRule searches the configuration for a matching rule and returns it.
+// The rule is matched first by the table and chain.
+// Other matching fields are optional (nil or an empty string arguments imply no-matching).
+// Mutating the returned chain will result in mutating the configuration.
 func (c *Config) LookupRule(toFind *schema.Rule) []*schema.Rule {
 	var rules []*schema.Rule
 

@@ -35,6 +35,9 @@ const (
 	cmdStdin   = "-"
 )
 
+// ReadConfig loads the nftables configuration from the system and
+// returns it as a nftables config structure.
+// The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
 func ReadConfig() (*Config, error) {
 	stdout, err := execCommand(nil, cmdJSON, cmdList, cmdRuleset)
 	if err != nil {
@@ -49,6 +52,8 @@ func ReadConfig() (*Config, error) {
 	return config, nil
 }
 
+// ApplyConfig applies the given nftables config on the system.
+// The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
 func ApplyConfig(c *Config) error {
 	data, err := c.ToJSON()
 	if err != nil {
