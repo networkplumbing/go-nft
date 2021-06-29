@@ -19,7 +19,7 @@
 
 package nft
 
-import "github.com/eddev/go-nft/nft/schema"
+import "github.com/networkplumbing/go-nft/nft/schema"
 
 type AddressFamily string
 

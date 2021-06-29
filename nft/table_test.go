@@ -25,8 +25,8 @@ import (
 
 	assert "github.com/stretchr/testify/require"
 
-	"github.com/eddev/go-nft/nft"
-	"github.com/eddev/go-nft/nft/schema"
+	"github.com/networkplumbing/go-nft/nft"
+	"github.com/networkplumbing/go-nft/nft/schema"
 )
 
 type tableActionFunc func(*nft.Config, *schema.Table)
