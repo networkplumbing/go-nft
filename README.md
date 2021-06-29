@@ -35,3 +35,7 @@ For full setup example, see the integration test [examples](tests/config_test.go
 
 We welcome contribution of any kind!
 Read [CONTRIBUTING](CONTRIBUTING.md) to learn how to contribute to the project.
+
+# Changelog
+
+Please refer to [CHANGELOG](CHANGELOG)
