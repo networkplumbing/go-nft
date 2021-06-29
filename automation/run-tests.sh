@@ -74,7 +74,7 @@ if [ -n "${OPT_FMT}" ]; then
         unformatted=$(gofmt -l ./nft ./tests)
         test -z "$unformatted" || (echo "Unformatted: $unformatted" && false)
 
-        unformatted=$(go run golang.org/x/tools/cmd/goimports -l --local "github.com/eddev/go-nft" ./nft ./tests)
+        unformatted=$(go run golang.org/x/tools/cmd/goimports -l --local "github.com/networkplumbing/go-nft" ./nft ./tests)
         test -z "$unformatted" || (echo "Unformatted imports: $unformatted" && false)
 fi
 

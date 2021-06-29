@@ -22,7 +22,7 @@ package nft
 import (
 	"encoding/json"
 
-	"github.com/eddev/go-nft/nft/schema"
+	"github.com/networkplumbing/go-nft/nft/schema"
 )
 
 type Config struct {

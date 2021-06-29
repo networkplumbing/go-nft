@@ -23,7 +23,7 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/eddev/go-nft/nft/schema"
+	"github.com/networkplumbing/go-nft/nft/schema"
 )
 
 // NewRule returns a new schema rule structure.

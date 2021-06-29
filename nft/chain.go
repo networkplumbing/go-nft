@@ -20,7 +20,7 @@
 package nft
 
 import (
-	"github.com/eddev/go-nft/nft/schema"
+	"github.com/networkplumbing/go-nft/nft/schema"
 )
 
 type ChainType string
