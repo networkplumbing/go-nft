@@ -9,7 +9,7 @@ Go bindings for nft utility.
 go-nft wraps invocation of the nft utility with functions to append and delete
 rules; create, clear and delete tables and chains.
 
-# To start using go-nft
+## To start using go-nft
 
 go-nft is a library that provides a structured API to nftables.
 
@@ -31,11 +31,11 @@ nftVersion := config.Nftables[0].Metainfo.Version
 
 For full setup example, see the integration test [examples](tests/config_test.go).
 
-# Contribution
+## Contribution
 
 We welcome contribution of any kind!
 Read [CONTRIBUTING](CONTRIBUTING.md) to learn how to contribute to the project.
 
-# Changelog
+## Changelog
 
 Please refer to [CHANGELOG](CHANGELOG)
