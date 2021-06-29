@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.1] - 2021-06-29
+### Breaking Changes
+ - Move the repo to the networkplumbing organization.
+   Consume go-nft by importing `github.com/networkplumbing/go-nft/nft`
+
 ## [0.1.0] - 2021-06-29
 ### New Features
  - Initial release.
