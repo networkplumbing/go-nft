@@ -29,7 +29,7 @@ config, err := nft.ReadConfig()
 nftVersion := config.Nftables[0].Metainfo.Version
 ```
 
-For full setup example, see the integration test [examples](tests/config_test.go).
+For full setup example, see the integration test [examples](tests/example_test.go).
 
 ## Contribution
 
