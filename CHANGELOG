@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.x] - yyyy-mm-dd
+ - Add support to link with libnftables using CGO
+   In order to use the lib backend, libnftables devel headers needs to be installed on the build machine.
+
 ## [0.1.1] - 2021-06-29
 ### Breaking Changes
  - Move the repo to the networkplumbing organization.
