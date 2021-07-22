@@ -31,6 +31,7 @@ import (
 func TestConfig(t *testing.T) {
 	runTestWithFlushTable(t, testReadEmptyConfig)
 	runTestWithFlushTable(t, testApplyConfigWithAnEmptyTable)
+	runTestWithFlushTable(t, testApplyConfigWithSampleStatements)
 }
 
 func runTestWithFlushTable(t *testing.T, test func(t *testing.T)) {
@@ -66,4 +67,33 @@ func testApplyConfigWithAnEmptyTable(t *testing.T) {
 
 	assert.Len(t, newConfig.Nftables, 2, "Expecting the metainfo and an empty table entry")
 	assert.Equal(t, config.Nftables[0], newConfig.Nftables[1])
+}
+
+func testApplyConfigWithSampleStatements(t *testing.T) {
+	testApplyConfigWithStatements(t,
+		schema.Statement{Counter: &schema.Counter{}},
+	)
+}
+
+func testApplyConfigWithStatements(t *testing.T, statements ...schema.Statement) {
+	const tableName = "mytable"
+	config := nft.NewConfig()
+	table := nft.NewTable(tableName, nft.FamilyIP)
+	config.AddTable(table)
+
+	const chainName = "mychain"
+	chain := nft.NewChain(table, chainName, nil, nil, nil, nil)
+	config.AddChain(chain)
+
+	rule := nft.NewRule(table, chain, statements, nil, nil, "test")
+	config.AddRule(rule)
+
+	assert.NoError(t, nft.ApplyConfig(config))
+
+	newConfig, err := nft.ReadConfig()
+	assert.NoError(t, err)
+
+	config = normalizeConfigForComparison(config)
+	newConfig = normalizeConfigForComparison(newConfig)
+	assert.Equal(t, config.Nftables, newConfig.Nftables)
 }

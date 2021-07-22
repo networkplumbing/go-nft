@@ -43,6 +43,7 @@ func TestRule(t *testing.T) {
 	testDeleteRule(t)
 
 	testAddRuleWithRowExpression(t)
+	testAddRuleWithCounter(t)
 
 	testRuleLookup(t)
 
@@ -281,4 +282,51 @@ func testReadRuleWithNumericalExpression(t *testing.T) {
 		}}]}
 		`)))
 	})
+}
+
+func testAddRuleWithCounter(t *testing.T) {
+	const comment = "mycomment"
+
+	table := nft.NewTable(tableName, nft.FamilyIP)
+	chain := nft.NewRegularChain(table, chainName)
+
+	statements, serializedStatements := counterStatements()
+	rule := nft.NewRule(table, chain, statements, nil, nil, comment)
+
+	t.Run("Add rule with counter, check serialization", func(t *testing.T) {
+		config := nft.NewConfig()
+		config.AddRule(rule)
+
+		serializedConfig, err := config.ToJSON()
+		assert.NoError(t, err)
+
+		expectedConfig := buildSerializedConfig(ruleADD, serializedStatements, nil, comment)
+		assert.JSONEq(t, string(expectedConfig), string(serializedConfig))
+	})
+
+	t.Run("Add rule with counter, check deserialization", func(t *testing.T) {
+		serializedConfig := buildSerializedConfig(ruleADD, serializedStatements, nil, comment)
+
+		var deserializedConfig nft.Config
+		assert.NoError(t, json.Unmarshal(serializedConfig, &deserializedConfig))
+
+		expectedConfig := nft.NewConfig()
+		expectedConfig.AddRule(rule)
+
+		assert.Equal(t, expectedConfig, &deserializedConfig)
+	})
+}
+
+func counterStatements() ([]schema.Statement, string) {
+	statements := []schema.Statement{{
+		Counter: &schema.Counter{
+			Packets: 0,
+			Bytes:   0,
+		},
+	}}
+
+	expectedCounter := `"counter":{"packets":0,"bytes":0}`
+	serializedStatements := fmt.Sprintf(`"expr":[{%s}]`, expectedCounter)
+
+	return statements, serializedStatements
 }

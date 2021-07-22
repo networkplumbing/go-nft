@@ -35,8 +35,14 @@ type Rule struct {
 }
 
 type Statement struct {
-	Match *Match `json:"match,omitempty"`
+	Counter *Counter `json:"counter,omitempty"`
+	Match   *Match   `json:"match,omitempty"`
 	Verdict
+}
+
+type Counter struct {
+	Packets int `json:"packets"`
+	Bytes   int `json:"bytes"`
 }
 
 type Verdict struct {
