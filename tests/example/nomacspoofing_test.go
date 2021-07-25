@@ -17,20 +17,21 @@
  *
  */
 
-package tests
+package example
 
 import (
-	"sort"
 	"testing"
 
 	assert "github.com/stretchr/testify/require"
+
+	"github.com/networkplumbing/go-nft/tests/testlib"
 
 	"github.com/networkplumbing/go-nft/nft"
 	"github.com/networkplumbing/go-nft/nft/schema"
 )
 
 func TestNoMacSpoofingExample(t *testing.T) {
-	runTestWithFlushTable(t, testNoMacSpoofingExample)
+	testlib.RunTestWithFlushTable(t, testNoMacSpoofingExample)
 }
 
 func testNoMacSpoofingExample(t *testing.T) {
@@ -55,39 +56,14 @@ func testNoMacSpoofingExample(t *testing.T) {
 	expectedNftablesEntries := len(desiredConfig.Nftables) + 1 // +1 for the metainfo entry.
 	assert.Len(t, actualConfig.Nftables, expectedNftablesEntries)
 
-	desiredConfig = normalizeConfigForComparison(desiredConfig)
-	actualConfig = normalizeConfigForComparison(actualConfig)
+	desiredConfig = testlib.NormalizeConfigForComparison(desiredConfig)
+	actualConfig = testlib.NormalizeConfigForComparison(actualConfig)
 
 	desiredJson, err := desiredConfig.ToJSON()
 	assert.NoError(t, err)
 	actualJson, err := actualConfig.ToJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, string(desiredJson), string(actualJson))
-}
-
-// normalizeConfigForComparison returns the configuration ready for comparison with another by
-// - removing the metainfo entry.
-// - removing the handle + index parameters.
-// - Sorting the list.
-func normalizeConfigForComparison(config *nft.Config) *nft.Config {
-	if len(config.Nftables) > 0 && config.Nftables[0].Metainfo != nil {
-		config.Nftables = config.Nftables[1:]
-	}
-
-	for _, nftable := range config.Nftables {
-		if nftable.Rule != nil {
-			nftable.Rule.Index = nil
-			nftable.Rule.Handle = nil
-		}
-	}
-
-	sort.Slice(config.Nftables, func(i int, j int) bool {
-		s := config.Nftables
-		isTableFirst := s[i].Table != nil && (s[j].Chain != nil || s[j].Rule != nil)
-		isChainBeforeRule := s[i].Chain != nil && s[j].Rule != nil
-		return isTableFirst || isChainBeforeRule
-	})
-	return config
 }
 
 func buildNoMacSpoofingConfigImperatively(ifaceName string, macAddress string) *nft.Config {

@@ -24,22 +24,16 @@ import (
 
 	assert "github.com/stretchr/testify/require"
 
+	"github.com/networkplumbing/go-nft/tests/testlib"
+
 	"github.com/networkplumbing/go-nft/nft"
 	"github.com/networkplumbing/go-nft/nft/schema"
 )
 
 func TestConfig(t *testing.T) {
-	runTestWithFlushTable(t, testReadEmptyConfig)
-	runTestWithFlushTable(t, testApplyConfigWithAnEmptyTable)
-	runTestWithFlushTable(t, testApplyConfigWithSampleStatements)
-}
-
-func runTestWithFlushTable(t *testing.T, test func(t *testing.T)) {
-	test(t)
-
-	nft.ApplyConfig(&nft.Config{schema.Root{Nftables: []schema.Nftable{
-		{Flush: &schema.Objects{Ruleset: true}},
-	}}})
+	testlib.RunTestWithFlushTable(t, testReadEmptyConfig)
+	testlib.RunTestWithFlushTable(t, testApplyConfigWithAnEmptyTable)
+	testlib.RunTestWithFlushTable(t, testApplyConfigWithSampleStatements)
 }
 
 func testReadEmptyConfig(t *testing.T) {
@@ -93,7 +87,7 @@ func testApplyConfigWithStatements(t *testing.T, statements ...schema.Statement)
 	newConfig, err := nft.ReadConfig()
 	assert.NoError(t, err)
 
-	config = normalizeConfigForComparison(config)
-	newConfig = normalizeConfigForComparison(newConfig)
+	config = testlib.NormalizeConfigForComparison(config)
+	newConfig = testlib.NormalizeConfigForComparison(newConfig)
 	assert.Equal(t, config.Nftables, newConfig.Nftables)
 }
