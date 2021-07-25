@@ -38,12 +38,61 @@ type Statement struct {
 	Counter *Counter `json:"counter,omitempty"`
 	Match   *Match   `json:"match,omitempty"`
 	Verdict
+	Nat
 }
 
 type Counter struct {
 	Packets int `json:"packets"`
 	Bytes   int `json:"bytes"`
 }
+
+type Nat struct {
+	Snat       *Snat       `json:"snat,omitempty"`
+	Dnat       *Dnat       `json:"dnat,omitempty"`
+	Masquerade *Masquerade `json:"masquerade,omitempty"`
+	Redirect   *Redirect   `json:"redirect,omitempty"`
+}
+
+type Snat struct {
+	Addr   *Expression `json:"addr,omitempty"`
+	Family *string     `json:"family,omitempty"`
+	Port   *Expression `json:"port,omitempty"`
+	Flags  *Flags      `json:"flags,omitempty"`
+}
+
+type Dnat struct {
+	Addr   *Expression `json:"addr,omitempty"`
+	Family *string     `json:"family,omitempty"`
+	Port   *Expression `json:"port,omitempty"`
+	Flags  *Flags      `json:"flags,omitempty"`
+}
+
+const masquerade = "masquerade"
+
+type Masquerade struct {
+	Enabled bool        `json:"-"`
+	Port    *Expression `json:"port,omitempty"`
+	Flags   *Flags      `json:"flags,omitempty"`
+}
+
+const redirect = "redirect"
+
+type Redirect struct {
+	Enabled bool        `json:"-"`
+	Port    *Expression `json:"port,omitempty"`
+	Flags   *Flags      `json:"flags,omitempty"`
+}
+
+type Flags struct {
+	Flags []string `json:"-"`
+}
+
+// NAT Flags
+const (
+	NATFlagRandom      = "random"
+	NATFlagFullyRandom = "fully-random"
+	NATFlagPersistent  = "persistent"
+)
 
 type Verdict struct {
 	SimpleVerdict
@@ -165,6 +214,10 @@ func (s Statement) MarshalJSON() ([]byte, error) {
 		dynamicStructure[VerdictDrop] = nil
 	case s.Return:
 		dynamicStructure[VerdictReturn] = nil
+	case s.Masquerade != nil && s.Masquerade.Enabled && s.Masquerade.Port == nil && s.Masquerade.Flags == nil:
+		dynamicStructure[masquerade] = nil
+	case s.Redirect != nil && s.Redirect.Enabled && s.Redirect.Port == nil && s.Redirect.Flags == nil:
+		dynamicStructure[redirect] = nil
 	}
 
 	data, err = json.Marshal(dynamicStructure)
@@ -191,6 +244,14 @@ func (s *Statement) UnmarshalJSON(data []byte) error {
 	_, s.Continue = dynamicStructure[VerdictContinue]
 	_, s.Drop = dynamicStructure[VerdictDrop]
 	_, s.Return = dynamicStructure[VerdictReturn]
+
+	if _, masqueradeDefined := dynamicStructure[masquerade]; s.Masquerade == nil && masqueradeDefined {
+		s.Masquerade = &Masquerade{Enabled: true}
+	}
+
+	if _, redirectDefined := dynamicStructure[redirect]; s.Redirect == nil && redirectDefined {
+		s.Redirect = &Redirect{Enabled: true}
+	}
 
 	return nil
 }
@@ -231,6 +292,8 @@ func (e *Expression) UnmarshalJSON(data []byte) error {
 	case bool:
 		d := dynamicStruct.(bool)
 		e.Bool = &d
+	case []interface{}:
+		e.RowData = data
 	case map[string]interface{}:
 		type _Expression Expression
 		expression := _Expression(*e)
@@ -244,6 +307,43 @@ func (e *Expression) UnmarshalJSON(data []byte) error {
 
 	if e.String == nil && e.Float64 == nil && e.Bool == nil && e.Payload == nil {
 		e.RowData = data
+	}
+
+	return nil
+}
+
+func (f Flags) MarshalJSON() ([]byte, error) {
+	var dynamicStruct interface{}
+
+	switch flagCount := len(f.Flags); {
+	case flagCount == 1:
+		dynamicStruct = f.Flags[0]
+	case flagCount > 1:
+		dynamicStruct = f.Flags
+	}
+
+	return json.Marshal(dynamicStruct)
+}
+
+func (f *Flags) UnmarshalJSON(data []byte) error {
+	var dynamicStruct interface{}
+	if err := json.Unmarshal(data, &dynamicStruct); err != nil {
+		return err
+	}
+
+	switch v := dynamicStruct.(type) {
+	case string:
+		f.Flags = []string{v}
+	case []interface{}:
+		for _, val := range v {
+			stringVal, ok := val.(string)
+			if !ok {
+				return fmt.Errorf("flags values require string type: %T(%v)", dynamicStruct, dynamicStruct)
+			}
+			f.Flags = append(f.Flags, stringVal)
+		}
+	default:
+		return fmt.Errorf("flags values require string type: %T(%v)", dynamicStruct, dynamicStruct)
 	}
 
 	return nil
