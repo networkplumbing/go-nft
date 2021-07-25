@@ -44,6 +44,7 @@ func TestRule(t *testing.T) {
 
 	testAddRuleWithRowExpression(t)
 	testAddRuleWithCounter(t)
+	testAddRuleWithNAT(t)
 
 	testRuleLookup(t)
 
@@ -327,6 +328,197 @@ func counterStatements() ([]schema.Statement, string) {
 
 	expectedCounter := `"counter":{"packets":0,"bytes":0}`
 	serializedStatements := fmt.Sprintf(`"expr":[{%s}]`, expectedCounter)
+
+	return statements, serializedStatements
+}
+
+func testAddRuleWithNAT(t *testing.T) {
+	tableTests := []struct {
+		typeName         string
+		createStatements func() ([]schema.Statement, string)
+	}{
+		{"dnat", dNATStatements},
+		{"snat", sNATStatements},
+		{"masquerade", masqueradeStatements},
+		{"redirect", redirectStatements},
+	}
+	for _, tt := range tableTests {
+		t.Run(fmt.Sprintf("Add rule with %s, check serialization", tt.typeName), func(t *testing.T) {
+			testSerializationWith(t, dNATStatements)
+		})
+		t.Run(fmt.Sprintf("Add rule with %s, check deserialization", tt.typeName), func(t *testing.T) {
+			testDeserializationWith(t, dNATStatements)
+		})
+	}
+}
+
+func testSerializationWith(t *testing.T, createStatements func() ([]schema.Statement, string)) {
+	const comment = "mycomment"
+
+	table := nft.NewTable(tableName, nft.FamilyIP)
+	chain := nft.NewRegularChain(table, chainName)
+
+	statements, serializedStatements := createStatements()
+	rule := nft.NewRule(table, chain, statements, nil, nil, comment)
+
+	config := nft.NewConfig()
+	config.AddRule(rule)
+
+	serializedConfig, err := config.ToJSON()
+	assert.NoError(t, err)
+
+	expectedConfig := buildSerializedConfig(ruleADD, serializedStatements, nil, comment)
+	assert.Equal(t, string(expectedConfig), string(serializedConfig))
+}
+
+func testDeserializationWith(t *testing.T, createStatements func() ([]schema.Statement, string)) {
+	const comment = "mycomment"
+
+	table := nft.NewTable(tableName, nft.FamilyIP)
+	chain := nft.NewRegularChain(table, chainName)
+
+	statements, serializedStatements := createStatements()
+
+	serializedConfig := buildSerializedConfig(ruleADD, serializedStatements, nil, comment)
+
+	var deserializedConfig nft.Config
+	assert.NoError(t, json.Unmarshal(serializedConfig, &deserializedConfig))
+
+	rule := nft.NewRule(table, chain, statements, nil, nil, comment)
+	expectedConfig := nft.NewConfig()
+	expectedConfig.AddRule(rule)
+
+	assert.Equal(t, expectedConfig, &deserializedConfig)
+}
+
+func dNATStatements() ([]schema.Statement, string) {
+	address0 := "1.2.3.4"
+	addressWithFamily := schema.Statement{}
+	familyIP4 := schema.FamilyIP
+	addressWithFamily.Dnat = &schema.Dnat{
+		Addr:   &schema.Expression{String: &address0},
+		Family: &familyIP4,
+	}
+
+	portList := schema.Statement{}
+	portList.Dnat = &schema.Dnat{
+		Port: &schema.Expression{RowData: json.RawMessage(`[80,8080]`)},
+	}
+
+	var port float64 = 12345
+	address1 := "feed::c0fe"
+	fullHouse := schema.Statement{}
+	familyIP6 := schema.FamilyIP6
+	fullHouse.Dnat = &schema.Dnat{
+		Addr:   &schema.Expression{String: &address1},
+		Family: &familyIP6,
+		Port:   &schema.Expression{Float64: &port},
+		Flags:  &schema.Flags{Flags: []string{schema.NATFlagRandom, schema.NATFlagPersistent}},
+	}
+
+	statements := []schema.Statement{addressWithFamily, portList, fullHouse}
+
+	expectedDNATIP4 := `"dnat":{"addr":"1.2.3.4","family":"ip"}`
+	expectedDNATMultiPorts := `"dnat":{"port":[80,8080]}`
+	expectedDNATIP6PortAndFlags := `"dnat":{"addr":"feed::c0fe","family":"ip6","port":12345,"flags":["random","persistent"]}`
+	serializedStatements := fmt.Sprintf(
+		`"expr":[{%s},{%s},{%s}]`, expectedDNATIP4, expectedDNATMultiPorts, expectedDNATIP6PortAndFlags,
+	)
+
+	return statements, serializedStatements
+}
+
+func sNATStatements() ([]schema.Statement, string) {
+	address0 := "1.2.3.4"
+	addressWithFamily := schema.Statement{}
+	familyIP4 := schema.FamilyIP
+	addressWithFamily.Snat = &schema.Snat{
+		Addr:   &schema.Expression{String: &address0},
+		Family: &familyIP4,
+	}
+
+	portList := schema.Statement{}
+	portList.Snat = &schema.Snat{
+		Port: &schema.Expression{RowData: json.RawMessage(`[80,8080]`)},
+	}
+
+	var port float64 = 12345
+	address1 := "feed::c0fe"
+	fullHouse := schema.Statement{}
+	familyIP6 := schema.FamilyIP6
+	fullHouse.Snat = &schema.Snat{
+		Addr:   &schema.Expression{String: &address1},
+		Family: &familyIP6,
+		Port:   &schema.Expression{Float64: &port},
+		Flags:  &schema.Flags{Flags: []string{schema.NATFlagFullyRandom}},
+	}
+
+	statements := []schema.Statement{addressWithFamily, portList, fullHouse}
+
+	expectedDNATIP4 := `"snat":{"addr":"1.2.3.4","family":"ip"}`
+	expectedDNATMultiPorts := `"snat":{"port":[80,8080]}`
+	expectedDNATIP6PortAndFlag := `"snat":{"addr":"feed::c0fe","family":"ip6","port":12345,"flags":"fully-random"}`
+	serializedStatements := fmt.Sprintf(
+		`"expr":[{%s},{%s},{%s}]`, expectedDNATIP4, expectedDNATMultiPorts, expectedDNATIP6PortAndFlag,
+	)
+
+	return statements, serializedStatements
+}
+
+func masqueradeStatements() ([]schema.Statement, string) {
+	basic := schema.Statement{}
+	basic.Masquerade = &schema.Masquerade{Enabled: true}
+
+	portList := schema.Statement{}
+	portList.Masquerade = &schema.Masquerade{
+		Port: &schema.Expression{RowData: json.RawMessage(`[80,8080]`)},
+	}
+
+	var port float64 = 12345
+	portAndFlags := schema.Statement{}
+	portAndFlags.Masquerade = &schema.Masquerade{
+		Port:  &schema.Expression{Float64: &port},
+		Flags: &schema.Flags{Flags: []string{schema.NATFlagFullyRandom}},
+	}
+
+	statements := []schema.Statement{basic, portList, portAndFlags}
+
+	expectedMasqueradeNoValues := `"masquerade":null`
+	expectedMasqueradeMultiPorts := `"masquerade":{"port":[80,8080]}`
+	expectedMasqueradePortAndFlag := `"masquerade":{"port":12345,"flags":"fully-random"}`
+	serializedStatements := fmt.Sprintf(
+		`"expr":[{%s},{%s},{%s}]`,
+		expectedMasqueradeNoValues, expectedMasqueradeMultiPorts, expectedMasqueradePortAndFlag,
+	)
+
+	return statements, serializedStatements
+}
+
+func redirectStatements() ([]schema.Statement, string) {
+	basic := schema.Statement{}
+	basic.Redirect = &schema.Redirect{Enabled: true}
+
+	portList := schema.Statement{}
+	portList.Redirect = &schema.Redirect{
+		Port: &schema.Expression{RowData: json.RawMessage(`[80,8080]`)},
+	}
+
+	var port float64 = 12345
+	portAndFlags := schema.Statement{}
+	portAndFlags.Redirect = &schema.Redirect{
+		Port:  &schema.Expression{Float64: &port},
+		Flags: &schema.Flags{Flags: []string{schema.NATFlagFullyRandom}},
+	}
+
+	statements := []schema.Statement{basic, portList, portAndFlags}
+
+	expectedRedirectNoValues := `"redirect":null`
+	expectedRedirectMultiPorts := `"redirect":{"port":[80,8080]}`
+	expectedRedirectPortAndFlag := `"redirect":{"port":12345,"flags":"fully-random"}`
+	serializedStatements := fmt.Sprintf(
+		`"expr":[{%s},{%s},{%s}]`,
+		expectedRedirectNoValues, expectedRedirectMultiPorts, expectedRedirectPortAndFlag,
+	)
 
 	return statements, serializedStatements
 }
