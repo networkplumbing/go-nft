@@ -20,40 +20,12 @@
 package nft
 
 import (
-	"encoding/json"
-
-	"github.com/networkplumbing/go-nft/nft/schema"
+	nftconfig "github.com/networkplumbing/go-nft/nft/config"
 )
 
-type Config struct {
-	schema.Root
-}
+type Config = nftconfig.Config
 
 // NewConfig returns a new nftables config structure.
-func NewConfig() *Config {
-	c := &Config{}
-	c.Nftables = []schema.Nftable{}
-	return c
-}
-
-// ToJSON returns the JSON encoding of the nftables config.
-func (c *Config) ToJSON() ([]byte, error) {
-	return json.Marshal(*c)
-}
-
-// FromJSON decodes the provided JSON-encoded data and populates the nftables config.
-func (c *Config) FromJSON(data []byte) error {
-	if err := json.Unmarshal(data, c); err != nil {
-		return err
-	}
-	return nil
-}
-
-// FlushRuleset adds a command to the nftables config that erases all the configuration when applied.
-// It is commonly used as the first config instruction, followed by a declarative configuration.
-// When used, any previous configuration is flushed away before adding the new one.
-// Calling FlushRuleset updates the configuration and will take effect only
-// when applied on the system.
-func (c *Config) FlushRuleset() {
-	c.Nftables = append(c.Nftables, schema.Nftable{Flush: &schema.Objects{Ruleset: true}})
+func NewConfig() *nftconfig.Config {
+	return nftconfig.New()
 }
