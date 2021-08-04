@@ -54,6 +54,7 @@ function run_container {
         --cap-add=NET_RAW \
         --sysctl net.ipv6.conf.all.disable_ipv6=$DISABLE_IPV6_IN_CONTAINER \
         -v "$PROJECT_PATH":"$CONTAINER_WORKSPACE":Z \
+        -v /lib/modules:/lib/modules \
         -w "$CONTAINER_WORKSPACE" \
         "$CONTAINER_IMG" \
     sh -c "$1"
@@ -85,7 +86,6 @@ fi
 if [ -n "${OPT_ITEST}" ]; then
     # Manually load `nft_masq` kmod on the host to support NAT definitions.
     # The container is unable to load a kmod (usually done by `nft` automatically).
-    sudo modprobe nft_masq
     run_container '
         apk add --no-cache nftables gcc musl-dev
         nft -j list ruleset
