@@ -17,7 +17,7 @@
  *
  */
 
-package nft_test
+package config_test
 
 import (
 	"fmt"
@@ -25,12 +25,12 @@ import (
 
 	assert "github.com/stretchr/testify/require"
 
-	"github.com/networkplumbing/go-nft/nft"
+	nftconfig "github.com/networkplumbing/go-nft/nft/config"
 	"github.com/networkplumbing/go-nft/nft/schema"
 )
 
 func TestDefineEmptyConfig(t *testing.T) {
-	config := nft.NewConfig()
+	config := nftconfig.New()
 
 	expected := []byte(`{"nftables":[]}`)
 	serializedConfig, err := config.ToJSON()
@@ -47,10 +47,10 @@ func TestReadEmptyConfigWithMetaInfo(t *testing.T) {
 		version, releaseName, schemaVersion,
 	))
 
-	config := nft.NewConfig()
+	config := nftconfig.New()
 	assert.NoError(t, config.FromJSON(serializedConfig))
 
-	expectedConfig := nft.NewConfig()
+	expectedConfig := nftconfig.New()
 	expectedConfig.Nftables = append(expectedConfig.Nftables, schema.Nftable{Metainfo: &schema.Metainfo{
 		Version:           version,
 		ReleaseName:       releaseName,
@@ -61,7 +61,7 @@ func TestReadEmptyConfigWithMetaInfo(t *testing.T) {
 }
 
 func TestFlushRuleset(t *testing.T) {
-	config := nft.NewConfig()
+	config := nftconfig.New()
 	config.FlushRuleset()
 
 	expected := []byte(`{"nftables":[{"flush":{"ruleset":null}}]}`)

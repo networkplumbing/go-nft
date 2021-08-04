@@ -79,7 +79,7 @@ if [ -n "${OPT_FMT}" ]; then
 fi
 
 if [ -n "${OPT_UTEST}" ]; then
-    go test -v ./nft
+    go test -v ./nft/...
 fi
 
 if [ -n "${OPT_ITEST}" ]; then
