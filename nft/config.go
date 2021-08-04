@@ -21,6 +21,7 @@ package nft
 
 import (
 	nftconfig "github.com/networkplumbing/go-nft/nft/config"
+	nftexec "github.com/networkplumbing/go-nft/nft/exec"
 )
 
 type Config = nftconfig.Config
@@ -28,4 +29,17 @@ type Config = nftconfig.Config
 // NewConfig returns a new nftables config structure.
 func NewConfig() *nftconfig.Config {
 	return nftconfig.New()
+}
+
+// ReadConfig loads the nftables configuration from the system and
+// returns it as a nftables config structure.
+// The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
+func ReadConfig() (*Config, error) {
+	return nftexec.ReadConfig()
+}
+
+// ApplyConfig applies the given nftables config on the system.
+// The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
+func ApplyConfig(c *Config) error {
+	return nftexec.ApplyConfig(c)
 }
