@@ -1,8 +1,15 @@
 # Changelog
 
-## [0.1.x] - yyyy-mm-dd
- - Add support to link with libnftables using CGO
+## [0.2.0] - 2021-09-13
+### New Features
+ - Add support to link with libnftables using CGO.
    In order to use the lib backend, libnftables devel headers needs to be installed on the build machine.
+ - Support NAT statements: dnat, snat, masquerade, redirect.
+ - Support anonymous counter statement.
+
+### Bug Fixes
+ - When calling the `nft` binary, pass the nftables configuration through a temp file instead of a buffer.
+   This is a workaround to the SELinux policy issue: https://github.com/containers/container-selinux/issues/147
 
 ## [0.1.1] - 2021-06-29
 ### Breaking Changes
