@@ -22,6 +22,8 @@ package exec
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -34,14 +36,13 @@ const (
 	cmdJSON    = "-j"
 	cmdList    = "list"
 	cmdRuleset = "ruleset"
-	cmdStdin   = "-"
 )
 
 // ReadConfig loads the nftables configuration from the system and
 // returns it as a nftables config structure.
 // The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
 func ReadConfig() (*nftconfig.Config, error) {
-	stdout, err := execCommand(nil, cmdJSON, cmdList, cmdRuleset)
+	stdout, err := execCommand(cmdJSON, cmdList, cmdRuleset)
 	if err != nil {
 		return nil, err
 	}
@@ -62,30 +63,38 @@ func ApplyConfig(c *nftconfig.Config) error {
 		return err
 	}
 
-	if _, err := execCommand(data, cmdJSON, cmdFile, cmdStdin); err != nil {
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "spoofcheck-")
+	if err != nil {
+		return fmt.Errorf("failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err = tmpFile.Write(data); err != nil {
+		return fmt.Errorf("failed to write to temporary file: %v", err)
+	}
+
+	if err := tmpFile.Close(); err != nil {
+		return fmt.Errorf("failed to close temporary file: %v", err)
+	}
+
+	if _, err := execCommand(cmdJSON, cmdFile, tmpFile.Name()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func execCommand(input []byte, args ...string) (*bytes.Buffer, error) {
+func execCommand(args ...string) (*bytes.Buffer, error) {
 	cmd := exec.Command(cmdBin, args...)
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	cmd.Stdout = &stdout
 
-	if input != nil {
-		var stdin bytes.Buffer
-		stdin.Write(input)
-		cmd.Stdin = &stdin
-	}
-
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf(
-			"failed to execute %s %s: %v stdin:'%s' stdout:'%s' stderr:'%s'",
-			cmd.Path, strings.Join(cmd.Args, " "), err, string(input), stdout.String(), stderr.String(),
+			"failed to execute %s %s: %v stdout:'%s' stderr:'%s'",
+			cmd.Path, strings.Join(cmd.Args, " "), err, stdout.String(), stderr.String(),
 		)
 	}
 
