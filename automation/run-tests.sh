@@ -56,7 +56,7 @@ function run_container {
         -v "$PROJECT_PATH":"$CONTAINER_WORKSPACE":Z \
         -w "$CONTAINER_WORKSPACE" \
         "$CONTAINER_IMG" \
-    sh -c "$1"
+    sh -e -c "$1"
 }
 
 if [ -z "${OPT_BUILD}" ] && [ -z "${OPT_FMT}" ] && [ -z "${OPT_UTEST}" ] && [ -z "${OPT_ITEST}" ]; then
