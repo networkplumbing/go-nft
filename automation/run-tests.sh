@@ -89,8 +89,8 @@ if [ -n "${OPT_ITEST}" ]; then
     run_container '
         apk add --no-cache nftables gcc musl-dev
         nft -j list ruleset
-        go test -v --tags=exec ./tests/...
+        go test -p 1 -v --tags=exec ./tests/...
         apk add --no-cache nftables-dev
-        go test -v ./tests/nftlib
+        go test -p 1 -v ./tests/nftlib
     '
 fi
