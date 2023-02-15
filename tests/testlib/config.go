@@ -28,9 +28,12 @@ import (
 )
 
 func RunTestWithFlushTable(t *testing.T, test func(t *testing.T)) {
+	t.Cleanup(flushRuleset)
 	test(t)
+}
 
-	nft.ApplyConfig(&nft.Config{schema.Root{Nftables: []schema.Nftable{
+func flushRuleset() {
+	_ = nft.ApplyConfig(&nft.Config{schema.Root{Nftables: []schema.Nftable{
 		{Flush: &schema.Objects{Ruleset: true}},
 	}}})
 }
