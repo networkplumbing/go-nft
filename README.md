@@ -20,12 +20,16 @@ and exposes a subset of its structures.
 ```golang
 config := nft.NewConfig()
 config.AddTable(nft.NewTable("mytable", nft.FamilyIP))
-err := nft.ApplyConfig(config)
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()
+err := nft.ApplyConfigContext(ctx, config)
 ```
 
 - Read the configuration:
 ```golang
-config, err := nft.ReadConfig()
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()
+config, err := nft.ReadConfigContext(ctx)
 nftVersion := config.Nftables[0].Metainfo.Version
 ```
 
