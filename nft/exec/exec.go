@@ -27,7 +27,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 
 	nftconfig "github.com/networkplumbing/go-nft/nft/config"
 )
@@ -38,16 +37,12 @@ const (
 	cmdJSON    = "-j"
 	cmdList    = "list"
 	cmdRuleset = "ruleset"
-
-	defaultTimeout = 5 * time.Second
 )
 
 // ReadConfig loads the nftables configuration from the system and
 // returns it as a nftables config structure.
 // The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
-func ReadConfig() (*nftconfig.Config, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-	defer cancel()
+func ReadConfig(ctx context.Context) (*nftconfig.Config, error) {
 
 	stdout, err := execCommand(ctx, cmdJSON, cmdList, cmdRuleset)
 	if err != nil {
@@ -64,7 +59,7 @@ func ReadConfig() (*nftconfig.Config, error) {
 
 // ApplyConfig applies the given nftables config on the system.
 // The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
-func ApplyConfig(c *nftconfig.Config) error {
+func ApplyConfig(ctx context.Context, c *nftconfig.Config) error {
 	data, err := c.ToJSON()
 	if err != nil {
 		return err
@@ -83,9 +78,6 @@ func ApplyConfig(c *nftconfig.Config) error {
 	if err := tmpFile.Close(); err != nil {
 		return fmt.Errorf("failed to close temporary file: %v", err)
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-	defer cancel()
 
 	if _, err := execCommand(ctx, cmdJSON, cmdFile, tmpFile.Name()); err != nil {
 		return err
