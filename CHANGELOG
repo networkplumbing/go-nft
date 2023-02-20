@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0] - 2023-**-**
+### New Features
+ - Expose API that accepts a context object for the binary exec `nft`) backend.
+   When using the top level `nft` package, the new functions are: `ReadConfigContext and `ApplyConfigContext`.
+   The old functions are kept with a default context timeout of 5 seconds.
+
+### Breaking Changes
+ - The functions exposed through `nft/exec` have been changed to accept a context.
+
 ## [0.2.0] - 2021-09-13
 ### New Features
  - Add support to link with libnftables using CGO.
