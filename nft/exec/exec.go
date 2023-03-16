@@ -42,9 +42,13 @@ const (
 // ReadConfig loads the nftables configuration from the system and
 // returns it as a nftables config structure.
 // The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
-func ReadConfig(ctx context.Context) (*nftconfig.Config, error) {
+func ReadConfig(ctx context.Context, filterCommands ...string) (*nftconfig.Config, error) {
 
-	stdout, err := execCommand(ctx, cmdJSON, cmdList, cmdRuleset)
+	whatToList := cmdRuleset
+	if len(filterCommands) > 0 {
+		whatToList = strings.Join(filterCommands, " ")
+	}
+	stdout, err := execCommand(ctx, cmdJSON, cmdList, whatToList)
 	if err != nil {
 		return nil, err
 	}
