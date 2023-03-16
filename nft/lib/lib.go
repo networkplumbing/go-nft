@@ -1,3 +1,4 @@
+//go:build cgo
 // +build cgo
 
 /*
@@ -28,6 +29,7 @@ package lib
 import "C"
 import (
 	"fmt"
+	"strings"
 	"unsafe"
 
 	"github.com/networkplumbing/go-nft/nft"
@@ -41,8 +43,12 @@ const (
 // ReadConfig loads the nftables configuration from the system and
 // returns it as a nftables config structure.
 // The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
-func ReadConfig() (*nft.Config, error) {
-	stdout, err := libNftablesRunCmd(fmt.Sprintf("%s %s", cmdList, cmdRuleset))
+func ReadConfig(filterCommands ...string) (*nft.Config, error) {
+	whatToList := cmdRuleset
+	if len(filterCommands) > 0 {
+		whatToList = strings.Join(filterCommands, " ")
+	}
+	stdout, err := libNftablesRunCmd(fmt.Sprintf("%s %s", cmdList, whatToList))
 	if err != nil {
 		return nil, err
 	}

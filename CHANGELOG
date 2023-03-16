@@ -2,12 +2,18 @@
 
 ## [0.3.0] - 2023-**-**
 ### New Features
- - Expose API that accepts a context object for the binary exec `nft`) backend.
+ - Expose API that accepts a context object for the binary exec (`nft`) backend.
    When using the top level `nft` package, the new functions are: `ReadConfigContext and `ApplyConfigContext`.
    The old functions are kept with a default context timeout of 5 seconds.
+ - Expose API that accepts filter commands when reading the configuration.
+   When reading the configuration, by default all the ruleset are loaded.
+   Now, the caller can specify filter commands to limit the loaded entries.
+   E.g. `ReadConfig("table", "inet", "mytable")`.
 
 ### Breaking Changes
  - The functions exposed through `nft/exec` have been changed to accept a context.
+ - `ReadConfig` exposed through `nft/lib/exec` has been changed to accept filter commands.
+   The new parameter is variadic, reducing the chances a caller will be influenced by this.
 
 ## [0.2.0] - 2021-09-13
 ### New Features

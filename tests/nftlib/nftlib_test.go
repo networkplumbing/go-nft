@@ -1,3 +1,4 @@
+//go:build !exec
 // +build !exec
 
 /* This file is part of the go-nft project

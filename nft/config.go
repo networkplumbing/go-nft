@@ -41,17 +41,17 @@ func NewConfig() *nftconfig.Config {
 // ReadConfig loads the nftables configuration from the system and
 // returns it as a nftables config structure.
 // The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
-func ReadConfig() (*Config, error) {
+func ReadConfig(filterCommands ...string) (*Config, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
-	return ReadConfigContext(ctx)
+	return ReadConfigContext(ctx, filterCommands...)
 }
 
 // ReadConfigContext loads the nftables configuration from the system and
 // returns it as a nftables config structure.
 // The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
-func ReadConfigContext(ctx context.Context) (*Config, error) {
-	return nftexec.ReadConfig(ctx)
+func ReadConfigContext(ctx context.Context, filterCommands ...string) (*Config, error) {
+	return nftexec.ReadConfig(ctx, filterCommands...)
 }
 
 // ApplyConfig applies the given nftables config on the system.

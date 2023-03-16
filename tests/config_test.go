@@ -33,6 +33,7 @@ import (
 func TestConfig(t *testing.T) {
 	testlib.RunTestWithFlushTable(t, testReadEmptyConfig)
 	testlib.RunTestWithFlushTable(t, testApplyConfigWithAnEmptyTable)
+	testlib.RunTestWithFlushTable(t, testReadFilteredConfig)
 	testlib.RunTestWithFlushTable(t, testApplyConfigWithSampleStatements)
 }
 
@@ -61,6 +62,36 @@ func testApplyConfigWithAnEmptyTable(t *testing.T) {
 
 	assert.Len(t, newConfig.Nftables, 2, "Expecting the metainfo and an empty table entry")
 	assert.Equal(t, config.Nftables[0], newConfig.Nftables[1])
+}
+
+func testReadFilteredConfig(t *testing.T) {
+	const (
+		tableName1 = "mytable1"
+		tableName2 = "mytable2"
+		chainName1 = "mychain1"
+		chainName2 = "mychain2"
+	)
+	config := nft.NewConfig()
+	table1 := nft.NewTable(tableName1, nft.FamilyIP)
+	table2 := nft.NewTable(tableName2, nft.FamilyIP)
+	config.AddTable(table1)
+	config.AddTable(table2)
+
+	chain1 := nft.NewChain(table1, chainName1, nil, nil, nil, nil)
+	chain2 := nft.NewChain(table1, chainName2, nil, nil, nil, nil)
+	config.AddChain(chain1)
+	config.AddChain(chain2)
+	assert.NoError(t, nft.ApplyConfig(config))
+
+	singleTableConfig, err := nft.ReadConfig("table", table2.Family, table2.Name)
+	assert.NoError(t, err)
+	assert.Len(t, singleTableConfig.Nftables, 2, "Expecting the metainfo and an empty table entry")
+	assert.Equal(t, config.Nftables[1], singleTableConfig.Nftables[1])
+
+	singleChainConfig, err := nft.ReadConfig("chain", chain1.Family, chain1.Table, chain1.Name)
+	assert.NoError(t, err)
+	assert.Len(t, singleChainConfig.Nftables, 2, "Expecting the metainfo and an empty chain entry")
+	assert.Equal(t, config.Nftables[2], singleChainConfig.Nftables[1])
 }
 
 func testApplyConfigWithSampleStatements(t *testing.T) {
