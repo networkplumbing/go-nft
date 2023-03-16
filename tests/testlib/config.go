@@ -28,8 +28,10 @@ import (
 )
 
 func RunTestWithFlushTable(t *testing.T, test func(t *testing.T)) {
-	t.Cleanup(flushRuleset)
-	test(t)
+	t.Run("", func(t *testing.T) {
+		t.Cleanup(flushRuleset)
+		test(t)
+	})
 }
 
 func flushRuleset() {
