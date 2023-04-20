@@ -4,7 +4,7 @@
 ### New Features
  - Expose API that accepts a context object for the binary exec (`nft`) backend.
    When using the top level `nft` package, the new functions are: `ReadConfigContext and `ApplyConfigContext`.
-   The old functions are kept with a default context timeout of 5 seconds.
+   The old functions are kept with a default context timeout of 30 seconds.
  - Expose API that accepts filter commands when reading the configuration.
    When reading the configuration, by default all the ruleset are loaded.
    Now, the caller can specify filter commands to limit the loaded entries.

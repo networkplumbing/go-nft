@@ -30,7 +30,7 @@ import (
 type Config = nftconfig.Config
 
 const (
-	defaultTimeout = 5 * time.Second
+	defaultTimeout = 30 * time.Second
 )
 
 // NewConfig returns a new nftables config structure.
