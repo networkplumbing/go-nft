@@ -76,11 +76,47 @@ func ApplyConfig(c *nft.Config) error {
 	return nil
 }
 
+// ApplyConfigEcho applies the given nftables config on the system, echoing
+// back the added elements with their assigned handles
+// The system is expected to have the `nft` executable deployed and nftables enabled in the kernel.
+func ApplyConfigEcho(c *nft.Config) (*nft.Config, error) {
+	data, err := c.ToJSON()
+	if err != nil {
+		return nil, err
+	}
+
+	stdout, err := libNftablesRunCmdEcho(string(data))
+	if err != nil {
+		return nil, err
+	}
+
+	config := nft.NewConfig()
+	if err := config.FromJSON(stdout); err != nil {
+		return nil, fmt.Errorf("failed to parse echo: %v", err)
+	}
+
+	return config, nil
+}
+
 func libNftablesRunCmd(cmd string) ([]byte, error) {
 	nft := C.nft_ctx_new(C.NFT_CTX_DEFAULT)
 	defer C.nft_ctx_free(nft)
 
 	C.nft_ctx_output_set_flags(nft, C.NFT_CTX_OUTPUT_JSON)
+
+	return libNftablesRunCmdContext(nft, cmd)
+}
+
+func libNftablesRunCmdEcho(cmd string) ([]byte, error) {
+	nft := C.nft_ctx_new(C.NFT_CTX_DEFAULT)
+	defer C.nft_ctx_free(nft)
+
+	C.nft_ctx_output_set_flags(nft, C.NFT_CTX_OUTPUT_JSON|C.NFT_CTX_OUTPUT_ECHO|C.NFT_CTX_OUTPUT_HANDLE)
+
+	return libNftablesRunCmdContext(nft, cmd)
+}
+
+func libNftablesRunCmdContext(nft *C.struct_nft_ctx, cmd string) ([]byte, error) {
 
 	buf := C.CString(cmd)
 	defer C.free(unsafe.Pointer(buf))

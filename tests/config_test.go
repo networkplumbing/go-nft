@@ -28,6 +28,9 @@ import (
 
 	"github.com/networkplumbing/go-nft/nft"
 	"github.com/networkplumbing/go-nft/nft/schema"
+
+	"context"
+	"time"
 )
 
 func TestConfig(t *testing.T) {
@@ -119,6 +122,15 @@ func testApplyConfigWithStatements(t *testing.T, statements ...schema.Statement)
 	assert.NoError(t, err)
 
 	config = testlib.NormalizeConfigForComparison(config)
+	newConfig = testlib.NormalizeConfigForComparison(newConfig)
+	assert.Equal(t, config.Nftables, newConfig.Nftables)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	newConfig, err = nft.ApplyConfigEcho(ctx, config)
+	assert.NoError(t, err)
+
 	newConfig = testlib.NormalizeConfigForComparison(newConfig)
 	assert.Equal(t, config.Nftables, newConfig.Nftables)
 }

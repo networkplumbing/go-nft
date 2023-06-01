@@ -45,5 +45,10 @@ func TestNftlib(t *testing.T) {
 		assert.Equal(t, config.Nftables[0], newConfig.Nftables[1])
 		_, err = nftlib.ReadConfig()
 		assert.NoError(t, err)
+
+		newConfig, err = nftlib.ApplyConfigEcho(config)
+		assert.NoError(t, err)
+		assert.Len(t, newConfig.Nftables, 1, "Expecting just the empty table entry")
+		assert.Equal(t, config.Nftables, newConfig.Nftables)
 	})
 }
