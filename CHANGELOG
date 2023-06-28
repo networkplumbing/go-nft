@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0] - 2023-06-28
+### New Features
+ - Expose API that echo back the configuration with the generated handle values.
+   This way, rules may be deleted later without having to list the ruleset first.
+ - Use stdin instead of /tmp files to pass the input to the `nft` binary.
+
 ## [0.3.0] - 2023-04-20
 ### New Features
  - Expose API that accepts a context object for the binary exec (`nft`) backend.
