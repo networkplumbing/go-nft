@@ -28,8 +28,8 @@ type Rule struct {
 	Family  string      `json:"family"`
 	Table   string      `json:"table"`
 	Chain   string      `json:"chain"`
-	Expr    []Statement `json:"expr,omitempty"`
 	Handle  *int        `json:"handle,omitempty"`
+	Expr    []Statement `json:"expr,omitempty"`
 	Index   *int        `json:"index,omitempty"`
 	Comment string      `json:"comment,omitempty"`
 }
@@ -41,9 +41,13 @@ type Statement struct {
 	Nat
 }
 
+// Counter can either be an anonymous counter in which case the packets and
+// bytes are set, or a named counter in which case the name is set. The bytes
+// and packets for named counter need to be looked up via the counter definition.
 type Counter struct {
-	Packets int `json:"packets"`
-	Bytes   int `json:"bytes"`
+	Name    string `json:"-"`
+	Packets int    `json:"packets"`
+	Bytes   int    `json:"bytes"`
 }
 
 type Nat struct {
@@ -190,6 +194,30 @@ const (
 	PayloadFieldIP6NextHdr   = "nexthdr"
 	PayloadFieldIP6HopLimit  = "hoplimit"
 )
+
+func (c Counter) MarshalJSON() ([]byte, error) {
+	if c.Name != "" {
+		return json.Marshal(c.Name)
+	}
+	type counter Counter
+	cntr := counter(c)
+	return json.Marshal(cntr)
+}
+
+func (c *Counter) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err == nil {
+		c.Name = name
+		return nil
+	}
+	type counter Counter
+	var cntr counter
+	if err := json.Unmarshal(data, &cntr); err != nil {
+		return err
+	}
+	*c = Counter(cntr)
+	return nil
+}
 
 func (s Statement) MarshalJSON() ([]byte, error) {
 	type _Statement Statement

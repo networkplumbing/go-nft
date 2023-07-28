@@ -19,18 +19,12 @@
 
 package schema
 
-// Table Address Families
-const (
-	FamilyIP     = "ip"     // IPv4 address AddressFamily.
-	FamilyIP6    = "ip6"    // IPv6 address AddressFamily.
-	FamilyINET   = "inet"   // Internet (IPv4/IPv6) address AddressFamily.
-	FamilyARP    = "arp"    // ARP address AddressFamily, handling IPv4 ARP packets.
-	FamilyBridge = "bridge" // Bridge address AddressFamily, handling packets which traverse a bridge device.
-	FamilyNETDEV = "netdev" // Netdev address AddressFamily, handling packets from ingress.
-)
-
-type Table struct {
-	Family string `json:"family"`
-	Name   string `json:"name"`
-	Handle *int   `json:"handle,omitempty"`
+// CounterDef is a named counter definition.
+type CounterDef struct {
+	Family  string `json:"family"`
+	Name    string `json:"name"`
+	Table   string `json:"table"`
+	Handle  *int   `json:"handle,omitempty"`
+	Packets *int   `json:"packets,omitempty"`
+	Bytes   *int   `json:"bytes,omitempty"`
 }

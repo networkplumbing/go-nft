@@ -1,0 +1,252 @@
+{
+  "nftables": [
+    {
+      "metainfo": {
+        "version": "1.0.2",
+        "release_name": "Lester Gooch",
+        "json_schema_version": 1
+      }
+    },
+    {
+      "table": {
+        "family": "inet",
+        "name": "filter",
+        "handle": 14
+      }
+    },
+    {
+      "chain": {
+        "family": "inet",
+        "table": "filter",
+        "name": "input",
+        "handle": 1,
+        "type": "filter",
+        "hook": "input",
+        "prio": 0,
+        "policy": "accept"
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 4,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "tcp",
+                  "field": "dport"
+                }
+              },
+              "right": 22
+            }
+          },
+          {
+            "counter": {
+              "packets": 2829683,
+              "bytes": 321462450
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 5,
+        "expr": [
+          {
+            "counter": {
+              "packets": 17237631,
+              "bytes": 14008044351
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 6,
+        "expr": [
+          {
+            "counter": {
+              "packets": 17237500,
+              "bytes": 14008031490
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 9,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "tcp",
+                  "field": "dport"
+                }
+              },
+              "right": {
+                "set": [
+                  22,
+                  4022,
+                  44022
+                ]
+              }
+            }
+          },
+          {
+            "counter": {
+              "packets": 2383090,
+              "bytes": 268021315
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 11,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "tcp",
+                  "field": "dport"
+                }
+              },
+              "right": {
+                "set": [
+                  22,
+                  4022,
+                  {
+                    "range": [
+                      44000,
+                      44022
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "counter": {
+              "packets": 2382881,
+              "bytes": 268010111
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 13,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "iifname"
+                }
+              },
+              "right": "enp2s0f2"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "tcp",
+                  "field": "dport"
+                }
+              },
+              "right": {
+                "set": [
+                  22,
+                  2181,
+                  2888,
+                  3888,
+                  {
+                    "range": [
+                      9000,
+                      10000
+                    ]
+                  },
+                  30041,
+                  {
+                    "range": [
+                      30242,
+                      30260
+                    ]
+                  },
+                  {
+                    "range": [
+                      30441,
+                      30456
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "counter": {
+              "packets": 0,
+              "bytes": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "chain": {
+        "family": "inet",
+        "table": "filter",
+        "name": "forward",
+        "handle": 2,
+        "type": "filter",
+        "hook": "forward",
+        "prio": 0,
+        "policy": "accept"
+      }
+    },
+    {
+      "chain": {
+        "family": "inet",
+        "table": "filter",
+        "name": "output",
+        "handle": 3,
+        "type": "filter",
+        "hook": "output",
+        "prio": 0,
+        "policy": "accept"
+      }
+    }
+  ]
+}

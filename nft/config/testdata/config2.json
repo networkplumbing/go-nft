@@ -1,0 +1,788 @@
+{
+  "nftables": [
+    {
+      "metainfo": {
+        "version": "1.0.2",
+        "release_name": "Lester Gooch",
+        "json_schema_version": 1
+      }
+    },
+    {
+      "table": {
+        "family": "inet",
+        "name": "filter",
+        "handle": 16
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "drop_ct_invalid",
+        "table": "filter",
+        "handle": 3,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "drop_input",
+        "table": "filter",
+        "handle": 4,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "drop_forward",
+        "table": "filter",
+        "handle": 5,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "drop_ssh",
+        "table": "filter",
+        "handle": 6,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "accept_ct_rel",
+        "table": "filter",
+        "handle": 7,
+        "packets": 20203437,
+        "bytes": 4552158913
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "accept_https",
+        "table": "filter",
+        "handle": 8,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "accept_ssh",
+        "table": "filter",
+        "handle": 9,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "accept_wg",
+        "table": "filter",
+        "handle": 10,
+        "packets": 3,
+        "bytes": 180
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "accept_telemetry",
+        "table": "filter",
+        "handle": 11,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "accept_icmp_echo",
+        "table": "filter",
+        "handle": 12,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "counter": {
+        "family": "inet",
+        "name": "accept_scion",
+        "table": "filter",
+        "handle": 13,
+        "packets": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "chain": {
+        "family": "inet",
+        "table": "filter",
+        "name": "input",
+        "handle": 1,
+        "type": "filter",
+        "hook": "input",
+        "prio": 0,
+        "policy": "drop"
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 16,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "tcp",
+                  "field": "dport"
+                }
+              },
+              "right": 22
+            }
+          },
+          {
+            "match": {
+              "op": "!=",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "saddr"
+                }
+              },
+              "right": {
+                "set": [
+                  {
+                    "prefix": {
+                      "addr": "10.253.61.72",
+                      "len": 29
+                    }
+                  },
+                  "10.148.116.135",
+                  "198.247.170.90",
+                  "198.247.170.170",
+                  {
+                    "prefix": {
+                      "addr": "198.18.0.0",
+                      "len": 24
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "counter": "drop_ssh"
+          },
+          {
+            "drop": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 17,
+        "comment": "drop ct invalid",
+        "expr": [
+          {
+            "match": {
+              "op": "in",
+              "left": {
+                "ct": {
+                  "key": "state"
+                }
+              },
+              "right": "invalid"
+            }
+          },
+          {
+            "counter": "drop_ct_invalid"
+          },
+          {
+            "drop": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 18,
+        "comment": "Connection initated by host",
+        "expr": [
+          {
+            "match": {
+              "op": "in",
+              "left": {
+                "ct": {
+                  "key": "state"
+                }
+              },
+              "right": [
+                "established",
+                "related"
+              ]
+            }
+          },
+          {
+            "counter": "accept_ct_rel"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 19,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "iif"
+                }
+              },
+              "right": "lo"
+            }
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 20,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "iif"
+                }
+              },
+              "right": "wg0"
+            }
+          },
+          {
+            "counter": "accept_wg"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 21,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "iif"
+                }
+              },
+              "right": "wg1"
+            }
+          },
+          {
+            "counter": "accept_wg"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 22,
+        "comment": "Appliance API access",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "daddr"
+                }
+              },
+              "right": "198.18.3.11"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "tcp",
+                  "field": "dport"
+                }
+              },
+              "right": 443
+            }
+          },
+          {
+            "counter": "accept_https"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 23,
+        "comment": "Appliance telemetry access",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "tcp",
+                  "field": "dport"
+                }
+              },
+              "right": 42001
+            }
+          },
+          {
+            "counter": "accept_telemetry"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 24,
+        "comment": "SSH connections",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "tcp",
+                  "field": "dport"
+                }
+              },
+              "right": 22
+            }
+          },
+          {
+            "counter": "accept_ssh"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 25,
+        "comment": "SCION interfaces",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "daddr"
+                }
+              },
+              "right": "10.193.61.62"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "saddr"
+                }
+              },
+              "right": "193.247.170.170"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "sport"
+                }
+              },
+              "right": 30050
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "dport"
+                }
+              },
+              "right": 31000
+            }
+          },
+          {
+            "counter": "accept_scion"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 26,
+        "comment": "SCION interfaces",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "daddr"
+                }
+              },
+              "right": "10.193.61.62"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "saddr"
+                }
+              },
+              "right": "10.247.170.90"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "sport"
+                }
+              },
+              "right": 31003
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "dport"
+                }
+              },
+              "right": 31001
+            }
+          },
+          {
+            "counter": "accept_scion"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 27,
+        "comment": "Dispatcher",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "daddr"
+                }
+              },
+              "right": "10.0.0.1"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "dport"
+                }
+              },
+              "right": 30041
+            }
+          },
+          {
+            "counter": "accept_scion"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 28,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "icmpv6",
+                  "field": "type"
+                }
+              },
+              "right": {
+                "set": [
+                  "nd-router-advert",
+                  "nd-neighbor-solicit",
+                  "nd-neighbor-advert"
+                ]
+              }
+            }
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 29,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "icmpv6",
+                  "field": "type"
+                }
+              },
+              "right": "echo-request"
+            }
+          },
+          {
+            "counter": "accept_icmp_echo"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 30,
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "icmp",
+                  "field": "type"
+                }
+              },
+              "right": "echo-request"
+            }
+          },
+          {
+            "counter": "accept_icmp_echo"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "input",
+        "handle": 31,
+        "comment": "Dropped input traffic",
+        "expr": [
+          {
+            "counter": "drop_input"
+          }
+        ]
+      }
+    },
+    {
+      "chain": {
+        "family": "inet",
+        "table": "filter",
+        "name": "forward",
+        "handle": 2,
+        "type": "filter",
+        "hook": "forward",
+        "prio": 0,
+        "policy": "drop"
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "forward",
+        "handle": 32,
+        "comment": "Connection initiated by us",
+        "expr": [
+          {
+            "match": {
+              "op": "in",
+              "left": {
+                "ct": {
+                  "key": "state"
+                }
+              },
+              "right": [
+                "established",
+                "related"
+              ]
+            }
+          },
+          {
+            "counter": "accept_ct_rel"
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "forward",
+        "handle": 33,
+        "comment": "Linux interface for router",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "iifname"
+                }
+              },
+              "right": "enp2s0f2"
+            }
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "inet",
+        "table": "filter",
+        "chain": "forward",
+        "handle": 34,
+        "comment": "Dropped forward traffic",
+        "expr": [
+          {
+            "counter": "drop_forward"
+          }
+        ]
+      }
+    }
+  ]
+}

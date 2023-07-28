@@ -20,10 +20,14 @@
 package config_test
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"path"
 	"testing"
 
-	assert "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	nftconfig "github.com/networkplumbing/go-nft/nft/config"
 	"github.com/networkplumbing/go-nft/nft/schema"
@@ -68,4 +72,40 @@ func TestFlushRuleset(t *testing.T) {
 	serializedConfig, err := config.ToJSON()
 	assert.NoError(t, err)
 	assert.Equal(t, string(expected), string(serializedConfig))
+}
+
+func TestFoo(t *testing.T) {
+	normalizeConfig := func(in []byte) []byte {
+		var foo interface{}
+		err := json.Unmarshal(in, &foo)
+		require.NoError(t, err)
+
+		fmted, err := json.MarshalIndent(foo, "", "  ")
+		require.NoError(t, err)
+		return fmted
+	}
+	var cfg nftconfig.Config
+	files := []string{
+		"config1.json",
+		"config2.json",
+	}
+	for _, f := range files {
+		f := f
+		name := fmt.Sprintf("file %s", f)
+		t.Run(name, func(t *testing.T) {
+			expected, err := os.ReadFile(path.Join("testdata", f))
+			require.NoError(t, err)
+
+			expected = normalizeConfig(expected)
+			assert.NoError(t, cfg.FromJSON(expected))
+
+			raw, err := json.MarshalIndent(cfg, "", "  ")
+			require.NoError(t, err)
+			raw = normalizeConfig(raw)
+			if !assert.Equal(t, string(expected), string(raw)) {
+				err = os.WriteFile(path.Join("testdata", "actual_"+f), raw, 0644)
+				require.NoError(t, err)
+			}
+		})
+	}
 }
