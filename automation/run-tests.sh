@@ -86,7 +86,7 @@ if [ -n "${OPT_ITEST}" ]; then
     # Manually load `nft_masq` kmod on the host to support NAT definitions.
     # The container is unable to load a kmod (usually done by `nft` automatically).
     sudo modprobe nft_masq
-    sudo modprobe nft_counter
+    # sudo modprobe nft_counter
     sudo modprobe nft_meta_bridge | true
     run_container '
         apk add --no-cache nftables gcc musl-dev

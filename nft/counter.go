@@ -17,14 +17,19 @@
  *
  */
 
-package schema
+package nft
 
-// NamedCounter is a named counter definition.
-type NamedCounter struct {
-	Family  string `json:"family"`
-	Table   string `json:"table"`
-	Name    string `json:"name"`
-	Handle  *int   `json:"handle,omitempty"`
-	Packets *int   `json:"packets,omitempty"`
-	Bytes   *int   `json:"bytes,omitempty"`
+import (
+	"github.com/networkplumbing/go-nft/nft/schema"
+)
+
+// NewCounter returns a new schema counter structure for a named counter.
+func NewCounter(table *schema.Table, name string) *schema.NamedCounter {
+	c := &schema.NamedCounter{
+		Family: table.Family,
+		Table:  table.Name,
+		Name:   name,
+	}
+
+	return c
 }
