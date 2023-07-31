@@ -44,7 +44,6 @@ func testReadEmptyConfig(t *testing.T) {
 	config, err := nft.ReadConfig()
 	assert.NoError(t, err)
 	assert.Len(t, config.Nftables, 1, "Expecting just the metainfo entry")
-
 	expectedConfig := nft.NewConfig()
 	expectedConfig.Nftables = append(expectedConfig.Nftables, schema.Nftable{Metainfo: &schema.Metainfo{JsonSchemaVersion: 1}})
 
@@ -62,9 +61,9 @@ func testApplyConfigWithAnEmptyTable(t *testing.T) {
 
 	newConfig, err := nft.ReadConfig()
 	assert.NoError(t, err)
-
 	assert.Len(t, newConfig.Nftables, 2, "Expecting the metainfo and an empty table entry")
-	assert.Equal(t, config.Nftables[0], newConfig.Nftables[1])
+	newConfig = testlib.NormalizeConfigForComparison(newConfig)
+	assert.Equal(t, config.Nftables[0], newConfig.Nftables[0])
 }
 
 func testReadFilteredConfig(t *testing.T) {
@@ -89,12 +88,14 @@ func testReadFilteredConfig(t *testing.T) {
 	singleTableConfig, err := nft.ReadConfig("table", table2.Family, table2.Name)
 	assert.NoError(t, err)
 	assert.Len(t, singleTableConfig.Nftables, 2, "Expecting the metainfo and an empty table entry")
-	assert.Equal(t, config.Nftables[1], singleTableConfig.Nftables[1])
+	singleTableConfig = testlib.NormalizeConfigForComparison(singleTableConfig)
+	assert.Equal(t, config.Nftables[1], singleTableConfig.Nftables[0])
 
 	singleChainConfig, err := nft.ReadConfig("chain", chain1.Family, chain1.Table, chain1.Name)
 	assert.NoError(t, err)
 	assert.Len(t, singleChainConfig.Nftables, 2, "Expecting the metainfo and an empty chain entry")
-	assert.Equal(t, config.Nftables[2], singleChainConfig.Nftables[1])
+	singleChainConfig = testlib.NormalizeConfigForComparison(singleChainConfig)
+	assert.Equal(t, config.Nftables[2], singleChainConfig.Nftables[0])
 }
 
 func testApplyConfigWithSampleStatements(t *testing.T) {

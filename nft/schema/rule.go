@@ -28,8 +28,8 @@ type Rule struct {
 	Family  string      `json:"family"`
 	Table   string      `json:"table"`
 	Chain   string      `json:"chain"`
-	Handle  *int        `json:"handle,omitempty"`
 	Expr    []Statement `json:"expr,omitempty"`
+	Handle  *int        `json:"handle,omitempty"`
 	Index   *int        `json:"index,omitempty"`
 	Comment string      `json:"comment,omitempty"`
 }

@@ -74,7 +74,7 @@ func TestFlushRuleset(t *testing.T) {
 	assert.Equal(t, string(expected), string(serializedConfig))
 }
 
-func TestFoo(t *testing.T) {
+func TestFromJSON(t *testing.T) {
 	normalizeConfig := func(in []byte) []byte {
 		var foo interface{}
 		err := json.Unmarshal(in, &foo)
@@ -84,15 +84,14 @@ func TestFoo(t *testing.T) {
 		require.NoError(t, err)
 		return fmted
 	}
-	var cfg nftconfig.Config
 	files := []string{
 		"config1.json",
 		"config2.json",
 	}
 	for _, f := range files {
-		f := f
 		name := fmt.Sprintf("file %s", f)
 		t.Run(name, func(t *testing.T) {
+			var cfg nftconfig.Config
 			expected, err := os.ReadFile(path.Join("testdata", f))
 			require.NoError(t, err)
 
