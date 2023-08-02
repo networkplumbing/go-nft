@@ -32,4 +32,5 @@ const (
 type Table struct {
 	Family string `json:"family"`
 	Name   string `json:"name"`
+	Handle *int   `json:"handle,omitempty"`
 }

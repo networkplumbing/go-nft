@@ -60,6 +60,12 @@ func NormalizeConfigForComparison(config *nft.Config) *nft.Config {
 			nftable.Rule.Index = nil
 			nftable.Rule.Handle = nil
 		}
+		if nftable.Chain != nil {
+			nftable.Chain.Handle = nil
+		}
+		if nftable.Table != nil {
+			nftable.Table.Handle = nil
+		}
 	}
 
 	sort.Slice(config.Nftables, func(i int, j int) bool {

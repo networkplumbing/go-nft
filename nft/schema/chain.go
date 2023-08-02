@@ -46,6 +46,7 @@ type Chain struct {
 	Family string `json:"family"`
 	Table  string `json:"table"`
 	Name   string `json:"name"`
+	Handle *int   `json:"handle,omitempty"`
 	Type   string `json:"type,omitempty"`
 	Hook   string `json:"hook,omitempty"`
 	Prio   *int   `json:"prio,omitempty"`

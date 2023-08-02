@@ -42,12 +42,14 @@ func TestNftlib(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Len(t, newConfig.Nftables, 2, "Expecting the metainfo and an empty table entry")
-		assert.Equal(t, config.Nftables[0], newConfig.Nftables[1])
+		newConfig = testlib.NormalizeConfigForComparison(newConfig)
+		assert.Equal(t, config.Nftables[0], newConfig.Nftables[0])
 		_, err = nftlib.ReadConfig()
 		assert.NoError(t, err)
 
 		newConfig, err = nftlib.ApplyConfigEcho(config)
 		assert.NoError(t, err)
+		newConfig = testlib.NormalizeConfigForComparison(newConfig)
 		assert.Len(t, newConfig.Nftables, 1, "Expecting just the empty table entry")
 		assert.Equal(t, config.Nftables, newConfig.Nftables)
 	})
