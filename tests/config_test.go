@@ -38,6 +38,7 @@ func TestConfig(t *testing.T) {
 	testlib.RunTestWithFlushTable(t, testApplyConfigWithAnEmptyTable)
 	testlib.RunTestWithFlushTable(t, testReadFilteredConfig)
 	testlib.RunTestWithFlushTable(t, testApplyConfigWithSampleStatements)
+	testlib.RunTestWithFlushTable(t, testApplyConfigWithNamedCounter)
 }
 
 func testReadEmptyConfig(t *testing.T) {
@@ -64,7 +65,8 @@ func testApplyConfigWithAnEmptyTable(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Len(t, newConfig.Nftables, 2, "Expecting the metainfo and an empty table entry")
-	assert.Equal(t, config.Nftables[0], newConfig.Nftables[1])
+	newConfig = testlib.NormalizeConfigForComparison(newConfig)
+	assert.Equal(t, config.Nftables[0], newConfig.Nftables[0])
 }
 
 func testReadFilteredConfig(t *testing.T) {
@@ -89,12 +91,14 @@ func testReadFilteredConfig(t *testing.T) {
 	singleTableConfig, err := nft.ReadConfig("table", table2.Family, table2.Name)
 	assert.NoError(t, err)
 	assert.Len(t, singleTableConfig.Nftables, 2, "Expecting the metainfo and an empty table entry")
-	assert.Equal(t, config.Nftables[1], singleTableConfig.Nftables[1])
+	singleTableConfig = testlib.NormalizeConfigForComparison(singleTableConfig)
+	assert.Equal(t, config.Nftables[1], singleTableConfig.Nftables[0])
 
 	singleChainConfig, err := nft.ReadConfig("chain", chain1.Family, chain1.Table, chain1.Name)
 	assert.NoError(t, err)
 	assert.Len(t, singleChainConfig.Nftables, 2, "Expecting the metainfo and an empty chain entry")
-	assert.Equal(t, config.Nftables[2], singleChainConfig.Nftables[1])
+	singleChainConfig = testlib.NormalizeConfigForComparison(singleChainConfig)
+	assert.Equal(t, config.Nftables[2], singleChainConfig.Nftables[0])
 }
 
 func testApplyConfigWithSampleStatements(t *testing.T) {
@@ -108,6 +112,47 @@ func testApplyConfigWithStatements(t *testing.T, statements ...schema.Statement)
 	config := nft.NewConfig()
 	table := nft.NewTable(tableName, nft.FamilyIP)
 	config.AddTable(table)
+
+	const chainName = "mychain"
+	chain := nft.NewChain(table, chainName, nil, nil, nil, nil)
+	config.AddChain(chain)
+
+	rule := nft.NewRule(table, chain, statements, nil, nil, "test")
+	config.AddRule(rule)
+
+	assert.NoError(t, nft.ApplyConfig(config))
+
+	newConfig, err := nft.ReadConfig()
+	assert.NoError(t, err)
+
+	config = testlib.NormalizeConfigForComparison(config)
+	newConfig = testlib.NormalizeConfigForComparison(newConfig)
+	assert.Equal(t, config.Nftables, newConfig.Nftables)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	newConfig, err = nft.ApplyConfigEcho(ctx, config)
+	assert.NoError(t, err)
+
+	newConfig = testlib.NormalizeConfigForComparison(newConfig)
+	assert.Equal(t, config.Nftables, newConfig.Nftables)
+}
+
+func testApplyConfigWithNamedCounter(t *testing.T) {
+	statements := []schema.Statement{{
+		Counter: &schema.Counter{
+			Name: "mycounter",
+		},
+	}}
+	const tableName = "mytable"
+	config := nft.NewConfig()
+	table := nft.NewTable(tableName, nft.FamilyIP)
+	config.AddTable(table)
+
+	const counterName = "mycounter"
+	counter := nft.NewCounter(table, counterName)
+	config.AddCounter(counter)
 
 	const chainName = "mychain"
 	chain := nft.NewChain(table, chainName, nil, nil, nil, nil)

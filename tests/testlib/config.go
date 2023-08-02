@@ -25,24 +25,31 @@ import (
 
 	"github.com/networkplumbing/go-nft/nft"
 	"github.com/networkplumbing/go-nft/nft/schema"
+	"github.com/stretchr/testify/require"
 )
 
 func RunTestWithFlushTable(t *testing.T, test func(t *testing.T)) {
 	t.Run("", func(t *testing.T) {
-		t.Cleanup(flushRuleset)
+		t.Cleanup(func() {
+			err := nft.ApplyConfig(&nft.Config{
+				Root: schema.Root{
+					Nftables: []schema.Nftable{
+						{
+							Flush: &schema.Objects{Ruleset: true},
+						},
+					},
+				},
+			})
+			require.NoError(t, err)
+		})
 		test(t)
 	})
-}
-
-func flushRuleset() {
-	_ = nft.ApplyConfig(&nft.Config{schema.Root{Nftables: []schema.Nftable{
-		{Flush: &schema.Objects{Ruleset: true}},
-	}}})
 }
 
 // NormalizeConfigForComparison returns the configuration ready for comparison with another by
 // - removing the metainfo entry.
 // - removing the handle + index parameters.
+// - removing the named counters bytes/packets.
 // - Sorting the list.
 func NormalizeConfigForComparison(config *nft.Config) *nft.Config {
 	if len(config.Nftables) > 0 && config.Nftables[0].Metainfo != nil {
@@ -53,6 +60,19 @@ func NormalizeConfigForComparison(config *nft.Config) *nft.Config {
 		if nftable.Rule != nil {
 			nftable.Rule.Index = nil
 			nftable.Rule.Handle = nil
+		}
+		if nftable.Chain != nil {
+			nftable.Chain.Handle = nil
+		}
+
+		if nftable.Table != nil {
+			nftable.Table.Handle = nil
+		}
+
+		if nftable.Counter != nil {
+			nftable.Counter.Handle = nil
+			nftable.Counter.Bytes = nil
+			nftable.Counter.Packets = nil
 		}
 	}
 
