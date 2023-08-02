@@ -30,10 +30,11 @@ type Root struct {
 const ruleSetKey = "ruleset"
 
 type Objects struct {
-	Table   *Table `json:"table,omitempty"`
-	Chain   *Chain `json:"chain,omitempty"`
-	Rule    *Rule  `json:"rule,omitempty"`
-	Ruleset bool   `json:"-"`
+	Table   *Table        `json:"table,omitempty"`
+	Chain   *Chain        `json:"chain,omitempty"`
+	Rule    *Rule         `json:"rule,omitempty"`
+	Counter *NamedCounter `json:"counter,omitempty"`
+	Ruleset bool          `json:"-"`
 }
 
 func (o Objects) MarshalJSON() ([]byte, error) {
@@ -62,9 +63,10 @@ func (o Objects) MarshalJSON() ([]byte, error) {
 }
 
 type Nftable struct {
-	Table *Table `json:"table,omitempty"`
-	Chain *Chain `json:"chain,omitempty"`
-	Rule  *Rule  `json:"rule,omitempty"`
+	Table   *Table        `json:"table,omitempty"`
+	Chain   *Chain        `json:"chain,omitempty"`
+	Rule    *Rule         `json:"rule,omitempty"`
+	Counter *NamedCounter `json:"counter,omitempty"`
 
 	Add    *Objects `json:"add,omitempty"`
 	Delete *Objects `json:"delete,omitempty"`

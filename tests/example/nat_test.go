@@ -56,7 +56,7 @@ func buildMasqueradeConfig() *nft.Config {
 
 	chainPriority := 100
 
-	return &nft.Config{schema.Root{Nftables: []schema.Nftable{
+	return &nft.Config{Root: schema.Root{Nftables: []schema.Nftable{
 		{Table: &schema.Table{Family: schema.FamilyIP, Name: ip4TableName}},
 		{Table: &schema.Table{Family: schema.FamilyIP6, Name: ip6TableName}},
 

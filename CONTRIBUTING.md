@@ -41,12 +41,12 @@ support in the kernel and the `nft` executable.
 
 To run the unit-tests, use this command from the project root:
 ```bash
-./autmation/run-tests.sh --unit-test
+./automation/run-tests.sh --unit-test
 ```
 
 To run the integration-tests, use this command from the project root:
 ```bash
-./autmation/run-tests.sh --integration-test
+./automation/run-tests.sh --integration-test
 ```
 
 ## Help utilities

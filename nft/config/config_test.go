@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"testing"
 
-	assert "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 
 	nftconfig "github.com/networkplumbing/go-nft/nft/config"
 	"github.com/networkplumbing/go-nft/nft/schema"
@@ -34,8 +34,8 @@ func TestDefineEmptyConfig(t *testing.T) {
 
 	expected := []byte(`{"nftables":[]}`)
 	serializedConfig, err := config.ToJSON()
-	assert.NoError(t, err)
-	assert.Equal(t, string(expected), string(serializedConfig))
+	require.NoError(t, err)
+	require.Equal(t, string(expected), string(serializedConfig))
 }
 
 func TestReadEmptyConfigWithMetaInfo(t *testing.T) {
@@ -48,7 +48,7 @@ func TestReadEmptyConfigWithMetaInfo(t *testing.T) {
 	))
 
 	config := nftconfig.New()
-	assert.NoError(t, config.FromJSON(serializedConfig))
+	require.NoError(t, config.FromJSON(serializedConfig))
 
 	expectedConfig := nftconfig.New()
 	expectedConfig.Nftables = append(expectedConfig.Nftables, schema.Nftable{Metainfo: &schema.Metainfo{
@@ -57,7 +57,7 @@ func TestReadEmptyConfigWithMetaInfo(t *testing.T) {
 		JsonSchemaVersion: schemaVersion,
 	}})
 
-	assert.Equal(t, expectedConfig, config)
+	require.Equal(t, expectedConfig, config)
 }
 
 func TestFlushRuleset(t *testing.T) {
@@ -66,6 +66,6 @@ func TestFlushRuleset(t *testing.T) {
 
 	expected := []byte(`{"nftables":[{"flush":{"ruleset":null}}]}`)
 	serializedConfig, err := config.ToJSON()
-	assert.NoError(t, err)
-	assert.Equal(t, string(expected), string(serializedConfig))
+	require.NoError(t, err)
+	require.Equal(t, string(expected), string(serializedConfig))
 }
