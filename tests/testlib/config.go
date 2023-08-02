@@ -49,6 +49,7 @@ func RunTestWithFlushTable(t *testing.T, test func(t *testing.T)) {
 // NormalizeConfigForComparison returns the configuration ready for comparison with another by
 // - removing the metainfo entry.
 // - removing the handle + index parameters.
+// - removing the named counters bytes/packets.
 // - Sorting the list.
 func NormalizeConfigForComparison(config *nft.Config) *nft.Config {
 	if len(config.Nftables) > 0 && config.Nftables[0].Metainfo != nil {
@@ -65,6 +66,11 @@ func NormalizeConfigForComparison(config *nft.Config) *nft.Config {
 		}
 		if nftable.Table != nil {
 			nftable.Table.Handle = nil
+		}
+		if nftable.Counter != nil {
+			nftable.Counter.Handle = nil
+			nftable.Counter.Bytes = nil
+			nftable.Counter.Packets = nil
 		}
 	}
 

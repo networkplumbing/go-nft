@@ -38,6 +38,7 @@ func TestConfig(t *testing.T) {
 	testlib.RunTestWithFlushTable(t, testApplyConfigWithAnEmptyTable)
 	testlib.RunTestWithFlushTable(t, testReadFilteredConfig)
 	testlib.RunTestWithFlushTable(t, testApplyConfigWithSampleStatements)
+	testlib.RunTestWithFlushTable(t, testApplyConfigWithNamedCounter)
 }
 
 func testReadEmptyConfig(t *testing.T) {
@@ -111,6 +112,47 @@ func testApplyConfigWithStatements(t *testing.T, statements ...schema.Statement)
 	config := nft.NewConfig()
 	table := nft.NewTable(tableName, nft.FamilyIP)
 	config.AddTable(table)
+
+	const chainName = "mychain"
+	chain := nft.NewChain(table, chainName, nil, nil, nil, nil)
+	config.AddChain(chain)
+
+	rule := nft.NewRule(table, chain, statements, nil, nil, "test")
+	config.AddRule(rule)
+
+	assert.NoError(t, nft.ApplyConfig(config))
+
+	newConfig, err := nft.ReadConfig()
+	assert.NoError(t, err)
+
+	config = testlib.NormalizeConfigForComparison(config)
+	newConfig = testlib.NormalizeConfigForComparison(newConfig)
+	assert.Equal(t, config.Nftables, newConfig.Nftables)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	newConfig, err = nft.ApplyConfigEcho(ctx, config)
+	assert.NoError(t, err)
+
+	newConfig = testlib.NormalizeConfigForComparison(newConfig)
+	assert.Equal(t, config.Nftables, newConfig.Nftables)
+}
+
+func testApplyConfigWithNamedCounter(t *testing.T) {
+	statements := []schema.Statement{{
+		Counter: &schema.Counter{
+			Name: "mycounter",
+		},
+	}}
+	const tableName = "mytable"
+	config := nft.NewConfig()
+	table := nft.NewTable(tableName, nft.FamilyIP)
+	config.AddTable(table)
+
+	const counterName = "mycounter"
+	counter := nft.NewCounter(table, counterName)
+	config.AddCounter(counter)
 
 	const chainName = "mychain"
 	chain := nft.NewChain(table, chainName, nil, nil, nil, nil)
