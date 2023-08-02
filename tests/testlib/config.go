@@ -25,19 +25,25 @@ import (
 
 	"github.com/networkplumbing/go-nft/nft"
 	"github.com/networkplumbing/go-nft/nft/schema"
+	"github.com/stretchr/testify/require"
 )
 
 func RunTestWithFlushTable(t *testing.T, test func(t *testing.T)) {
 	t.Run("", func(t *testing.T) {
-		t.Cleanup(flushRuleset)
+		t.Cleanup(func() {
+			err := nft.ApplyConfig(&nft.Config{
+				Root: schema.Root{
+					Nftables: []schema.Nftable{
+						{
+							Flush: &schema.Objects{Ruleset: true},
+						},
+					},
+				},
+			})
+			require.NoError(t, err)
+		})
 		test(t)
 	})
-}
-
-func flushRuleset() {
-	_ = nft.ApplyConfig(&nft.Config{schema.Root{Nftables: []schema.Nftable{
-		{Flush: &schema.Objects{Ruleset: true}},
-	}}})
 }
 
 // NormalizeConfigForComparison returns the configuration ready for comparison with another by
